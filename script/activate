@@ -1,0 +1,74 @@
+#!/bin/bash
+(
+  [[ -n $ZSH_VERSION && $ZSH_EVAL_CONTEXT =~ :file$ ]] || 
+  [[ -n $KSH_VERSION && "$(cd -- "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" != "$(cd -- "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ]] || 
+  [[ -n $BASH_VERSION ]] && (return 0 2>/dev/null)
+) && sourced=1 || sourced=0
+
+if [[ $sourced -eq 0 ]]; then
+  echo "This script should not be run, it should be sourced."
+  exit 1
+fi
+
+[ -z "$OMNIDEBUG_DBGSHIM_NUGET_ROOT" ] && OMNIDEBUG_DBGSHIM_NUGET_ROOT="$HOME/.nuget/packages"
+
+echo "Locating dbgshim"
+
+if [ -z "$OMNIDEBUG_DBGSHIM_RID" ]; then
+    case "$(uname)" in
+    Darwin)
+        rid_os="osx"
+        ;;
+    Linux)
+        rid_os="linux"
+        ;;
+    *)
+        echo "Unknown OS: $(uname)" 1>&2
+        return 1
+        ;;
+    esac
+
+    case "$(uname -m)" in
+    arm64)
+        rid_arch="arm64"
+        ;;
+    x86_64)
+        rid_arch="x64"
+        ;;
+    *)
+        echo "Unknown architecture: $(uname -m)" 1>&2
+        return 1
+        ;;
+    esac
+
+    export OMNIDEBUG_DBGSHIM_RID="$rid_os-$rid_arch"
+fi
+
+if [ -z "$OMNIDEBUG_DBGSHIM_NAME" ]; then
+    case "$(uname)" in
+    Darwin)
+        export OMNIDEBUG_DBGSHIM_NAME="libdbgshim.dylib"
+        ;;
+    Linux)
+        export OMNIDEBUG_DBGSHIM_NAME="libdbgshim.so"
+        ;;
+    *)
+        echo "Unknown OS: $(uname)" 1>&2
+        return 1
+        ;;
+    esac
+fi
+
+
+if [ -z "$OMNIDEBUG_DBGSHIM_VERSION" ]; then
+    export OMNIDEBUG_DBGSHIM_VERSION=$(dotnet msbuild -t:OutputDbgShimVersion ./src/OmniDebug.Interop/OmniDebug.Interop.csproj | grep "DbgShim version:" | cut -d ' ' -f 5)
+
+    if [ ! -d "$OMNIDEBUG_DBGSHIM_NUGET_ROOT/microsoft.diagnostics.dbgshim/$OMNIDEBUG_DBGSHIM_VERSION" ]; then
+        echo "Failed to locate expected dbgshim version $OMNIDEBUG_DBGSHIM_VERSION. Have you run 'script/bootstrap'?" 1>&2
+        return 1
+    fi
+fi
+
+export OMNIDEBUG_DBGSHIM_PATH="$OMNIDEBUG_DBGSHIM_NUGET_ROOT/microsoft.diagnostics.dbgshim.$OMNIDEBUG_DBGSHIM_RID/$OMNIDEBUG_DBGSHIM_VERSION/runtimes/$OMNIDEBUG_DBGSHIM_RID/native/$OMNIDEBUG_DBGSHIM_NAME"
+
+echo "Configured OMNISHARP_DBGSHIM_* variables."

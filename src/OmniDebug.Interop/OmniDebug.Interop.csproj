@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <EmbedDbgShimPath Condition="'$(Configuration)' == 'Debug'">true</EmbedDbgShimPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Diagnostics.DbgShim" Version="6.0.328102" GeneratePathProperty="true"/>
+    </ItemGroup>
+
+    <Target Name="OutputDbgShimVersion">
+        <PropertyGroup>
+            <DbgShimVersion>$([System.IO.Path]::GetFileName($(PkgMicrosoft_Diagnostics_DbgShim)))</DbgShimVersion>
+        </PropertyGroup>
+        <Message Text="DbgShim version: $(DbgShimVersion)" Importance="high" />
+    </Target>
+</Project>
