@@ -41,16 +41,16 @@ if [ -z "$OMNIDEBUG_DBGSHIM_RID" ]; then
         ;;
     esac
 
-    export OMNIDEBUG_DBGSHIM_RID="$rid_os-$rid_arch"
+    OMNIDEBUG_DBGSHIM_RID="$rid_os-$rid_arch"
 fi
 
 if [ -z "$OMNIDEBUG_DBGSHIM_NAME" ]; then
     case "$(uname)" in
     Darwin)
-        export OMNIDEBUG_DBGSHIM_NAME="libdbgshim.dylib"
+        OMNIDEBUG_DBGSHIM_NAME="libdbgshim.dylib"
         ;;
     Linux)
-        export OMNIDEBUG_DBGSHIM_NAME="libdbgshim.so"
+        OMNIDEBUG_DBGSHIM_NAME="libdbgshim.so"
         ;;
     *)
         echo "Unknown OS: $(uname)" 1>&2
@@ -61,7 +61,7 @@ fi
 
 
 if [ -z "$OMNIDEBUG_DBGSHIM_VERSION" ]; then
-    export OMNIDEBUG_DBGSHIM_VERSION=$(dotnet msbuild -t:OutputDbgShimVersion ./src/OmniDebug.Interop/OmniDebug.Interop.csproj | grep "DbgShim version:" | cut -d ' ' -f 5)
+    OMNIDEBUG_DBGSHIM_VERSION=$(dotnet msbuild -t:OutputDbgShimVersion ./src/OmniDebug.Core/OmniDebug.Core.csproj | grep "DbgShim version:" | cut -d ' ' -f 5)
 
     if [ ! -d "$OMNIDEBUG_DBGSHIM_NUGET_ROOT/microsoft.diagnostics.dbgshim/$OMNIDEBUG_DBGSHIM_VERSION" ]; then
         echo "Failed to locate expected dbgshim version $OMNIDEBUG_DBGSHIM_VERSION. Have you run 'script/bootstrap'?" 1>&2
@@ -69,6 +69,6 @@ if [ -z "$OMNIDEBUG_DBGSHIM_VERSION" ]; then
     fi
 fi
 
-export OMNIDEBUG_DBGSHIM_PATH="$OMNIDEBUG_DBGSHIM_NUGET_ROOT/microsoft.diagnostics.dbgshim.$OMNIDEBUG_DBGSHIM_RID/$OMNIDEBUG_DBGSHIM_VERSION/runtimes/$OMNIDEBUG_DBGSHIM_RID/native/$OMNIDEBUG_DBGSHIM_NAME"
+export OMNIDEBUG_DEBUGGERSHIM__PATH="$OMNIDEBUG_DBGSHIM_NUGET_ROOT/microsoft.diagnostics.dbgshim.$OMNIDEBUG_DBGSHIM_RID/$OMNIDEBUG_DBGSHIM_VERSION/runtimes/$OMNIDEBUG_DBGSHIM_RID/native/$OMNIDEBUG_DBGSHIM_NAME"
 
-echo "Configured OMNISHARP_DBGSHIM_* variables."
+echo "Configured environment variables."

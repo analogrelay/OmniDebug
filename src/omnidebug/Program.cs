@@ -1,20 +1,17 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Runtime.InteropServices;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using OmniDebug;
+using OmniDebug.Interactive;
 
-if (!OmniDebugger.TryCreate(out var debugger))
-{
-    Console.Error.WriteLine("Failed to locate 'dbgshim'. Try setting the 'OMNIDEBUG_DBGSHIM_PATH' environment variable.");
-    return 1;
-}
+using Spectre.Console;
 
-var pid = int.Parse(args[0]);
-Console.WriteLine($"CLRs in process {pid}:");
-foreach (var rt in debugger.EnumerateRuntimes(pid))
-{
-    Console.WriteLine($"* 0x{rt.Handle:X8} {rt.Path}");
-}
-
-return 0;
+var host = DebuggerHostBuilder.Create(args)
+    .ConfigureServices((context, services) =>
+    {
+        InteractiveDriver.RegisterAllCommands(services);
+        services.AddSingleton(AnsiConsole.Console);
+        services.AddSingleton<InteractiveDriver>();
+    })
+    .Build();
+    
+return await host.Services.GetRequiredService<InteractiveDriver>().RunAsync();

@@ -7,7 +7,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <RootNamespace>OmniDebug</RootNamespace>
+    <RootNamespace>OmniDebug.Interactive</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OmniDebug.Core\OmniDebug.Core.csproj" />
+    <ProjectReference Include="..\..\src\omnidebug\omnidebug.csproj" />
   </ItemGroup>
 
 </Project>
