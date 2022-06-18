@@ -1,0 +1,7 @@
+<Project>
+    <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <WarningsNotAsErrors>CS1998</WarningsNotAsErrors>
+        <InformationalVersion>0.0.0</InformationalVersion>
+    </PropertyGroup>
+</Project>
