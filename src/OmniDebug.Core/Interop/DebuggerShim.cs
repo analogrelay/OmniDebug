@@ -2,7 +2,6 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using Microsoft.Diagnostics.Runtime.Utilities;
 using Microsoft.Extensions.Options;
 
 namespace OmniDebug.Interop;

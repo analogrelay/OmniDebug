@@ -23,7 +23,7 @@ public class DebuggerEngine
 
     public IReadOnlyList<RuntimeReference> EnumerateRuntimes(int processId) => _dbgShim.EnumerateRuntimes(processId);
 
-    public void AttachToProcess(int processId)
+    public unsafe void AttachToProcess(int processId)
     {
         // First, enumerate the runtimes for the process.
         var runtimes = EnumerateRuntimes(processId);
@@ -38,16 +38,19 @@ public class DebuggerEngine
                 _logger.LogDebug("Loaded debugging interface for process {ProcessId} {VersionString}: {CordbgHandle}", processId, versionString, $"0x{cordbgPtr:X8}");
                 
                 // Start debugging services
-                var cordbg = CorDebug.Create(cordbgPtr) ?? throw new InvalidOperationException("Failed to creatre debugging interface");
-                cordbg.Initialize();
-                
-                // Attach a managed handler
-                var handler = new CorDebugManagedCallback(_loggerFactory.CreateLogger<CorDebugManagedCallback>());
-                cordbg.SetManagedHandler(handler.ICorDebugManagedCallback);
+                var cordbg = CorDebug.Create(cordbgPtr) ?? throw new InvalidOperationException("Failed to create debugging interface");
+                cordbg.Initialize()
+                    .ThrowIfFailed();
+
+                var callback = new DebugManagedCallback();
+                cordbg.SetManagedHandler(callback.ICorDebugManagedCallback)
+                    .ThrowIfFailed();
                 
                 // Attach to the process
-                var processHandle = cordbg.DebugActiveProcess(processId);
-                _logger.LogDebug("Attached debugger {CordbgHandle} to process {ProcessId}: {ProcessHandle}", $"0x{cordbgPtr:X8}", processId, $"0x{processHandle:X8}");
+                CorDebugProcessPtr processPtr;
+                cordbg.DebugActiveProcess((uint)processId, false, &processPtr)
+                    .ThrowIfFailed();
+                _logger.LogDebug("Attached debugger {CordbgHandle} to process {ProcessId}: {ProcessHandle}", $"0x{cordbg.Self:X8}", processId, $"0x{processPtr.Pointer:X8}");
             }
         }
     }
