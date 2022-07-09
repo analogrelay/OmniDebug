@@ -1,0 +1,32 @@
+#!/bin/bash -u
+{ set +x; } 2>/dev/null
+SOURCE=$0
+DIR="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
+ROOTDIR=$(cd $DIR && cd ../ && pwd)
+
+debuggee_name="${1:-}"
+
+if [ -z "$debuggee_name" ]; then
+    echo "Usage: $0 <debuggee_name>"
+    exit 1
+fi
+
+debuggee_path="$ROOTDIR/debuggees/$debuggee_name"
+if [ ! -d "$debuggee_path" ]; then
+    echo "Debuggee '$debuggee_name' not found"
+    exit 1
+fi
+
+output_path="$ROOTDIR/debuggees/.out/$debuggee_name"
+if [ -d "$output_path" ]; then
+    rm -rf "$output_path"
+fi
+mkdir -p "$output_path"
+
+dotnet build --configuration DEBUG --output "$output_path" "$debuggee_path" >/dev/null
+
+set -m
+"$output_path/$debuggee_name" &
+debuggee_pid=$!
+echo "*** Debuggee pid: $debuggee_pid ***"
+fg > /dev/null

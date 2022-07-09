@@ -80,7 +80,12 @@ public class InteractiveDriver
         }
         catch (Exception ex) when (ex is ICommandException cex)
         {
-            _console.WriteLine($"[red]{cex.Message}[/]");
+            _console.MarkupLine($"[red]{cex.Message}[/]");
+        }
+        catch (Exception ex)
+        {
+            _console.MarkupLine($"[red]Unhandled Exception[/]");
+            _console.WriteLine(ex.ToString());
         }
     }
 
