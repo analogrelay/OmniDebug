@@ -1,0 +1,59 @@
+{
+    "mapped_types": {
+        "_GUID": "Guid",
+        "HRESULT": "HResult",
+        "BOOL": "bool"
+    },
+    "include_paths": [
+        "src/coreclr/inc",
+        "src/coreclr/pal/inc/rt",
+        "src/coreclr/pal/inc/rt/cpp",
+        "src/coreclr/pal/inc",
+        "src/coreclr/pal/prebuilt/inc"
+    ],
+    "clang_args": [
+        "-nostdinc++",
+        "-xc++"
+    ],
+    "defines": [
+        "COM_NO_WINDOWS_H",
+        "__linux__",
+        "__x86_64__",
+        "BEGIN_INTERFACE",
+        "END_INTERFACE",
+        "__COM_Output__",
+        "char16_t uint16_t",
+        "bool BOOL"
+    ],
+    "files": [
+        {
+            "enabled": true,
+            "source": "src/coreclr/pal/prebuilt/inc/cordebug.h",
+            "ppout": "src/OmniDebug.Core/Interop/Generated/cordebug.pp.h",
+            "target": "src/OmniDebug.Core/Interop/Generated/cordebug.cs",
+            "roots": [
+                "ICorDebugVtbl",
+                "ICorDebugManagedCallbackVtbl",
+                "ICorDebugManagedCallback2Vtbl"
+            ]
+        },
+        {
+            "source": "src/coreclr/inc/cor.h",
+            "ppout": "src/OmniDebug.Core/Interop/Generated/cor.pp.h",
+            "target": "src/OmniDebug.Core/Interop/Generated/cor.cs",
+            "roots": [
+                "IMetaDataImport"
+            ]
+        }
+    ],
+    "wrappers": [
+        {
+            "name": "CorDebugManagedCallbackBase",
+            "target": "src/OmniDebug.Core/Interop/Generated/CorDebugManagedCallbackBase.cs",
+            "interfaces": [
+                "ICorDebugManagedCallback",
+                "ICorDebugManagedCallback2"
+            ]
+        }
+    ]
+}
