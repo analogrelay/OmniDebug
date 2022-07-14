@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace OmniDebug.Interop;
 
 class DebugManagedCallback: CorDebugManagedCallbackBase
@@ -17,11 +15,5 @@ class DebugManagedCallback: CorDebugManagedCallbackBase
         appDomain.Attach().ThrowIfFailed();
         appDomain.Continue(false);
         return HResult.S_OK;
-    }
-
-    protected override HResult LoadModule(CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule)
-    {
-        var module = pModule.Deref();
-        return base.LoadModule(pAppDomain, pModule);
     }
 }

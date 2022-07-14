@@ -47,8 +47,8 @@ public class DebuggerEngine
                     .ThrowIfFailed();
                 
                 // Attach to the process
-                CorDebugProcessPtr processPtr;
-                cordbg.DebugActiveProcess((uint)processId, false, &processPtr)
+                CorDebugProcessPtr processPtr = default;
+                cordbg.DebugActiveProcess((uint)processId, false, ref processPtr)
                     .ThrowIfFailed();
                 _logger.LogDebug("Attached debugger {CordbgHandle} to process {ProcessId}: {ProcessHandle}", $"0x{cordbg.Self:X8}", processId, $"0x{processPtr.Pointer:X8}");
             }

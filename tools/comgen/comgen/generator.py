@@ -1,7 +1,7 @@
 import ipdb
 import clang.cindex
 
-from comgen.types import Primitive, TypeDef, Struct, DeclaredType, Interface, Enum, map_dotnet_type
+from comgen.types import Struct, DeclaredType, Interface, Enum, map_dotnet_type
 
 reserved_words = ['string']
 
@@ -56,7 +56,7 @@ class ComWrapper():
             f.write("    {\n")
             f.write("        var builder = self.AddInterface(iid, validate: false);\n")
             for method in iface.methods:
-                f.write(f"        builder.AddMethod(new {iface.name}Delegates.{method.name}Delegate((IntPtr Self")
+                f.write(f"        builder.AddMethod(new {iface.name}Delegates.{method.name}Delegate((IntPtr This")
                 for (name, type) in method.parameters:
                     f.write(", " + type.get_param_form() + " " + name)
                 f.write(f") => self.{method.name}(")
@@ -89,22 +89,29 @@ class ComMethod():
         self.return_type = return_type
         self.parameters = parameters
 
-    def generate(f, generator):
+    def generate_from_method(decl, generator):
+        name = decl.displayname[0:decl.displayname.find('(')]
+        return ComMethod._generate(name, decl.get_children(), decl.type, generator)
+
+    def generate_from_field(f, generator):
         if f.kind != clang.cindex.CursorKind.FIELD_DECL or f.type.kind != clang.cindex.TypeKind.POINTER:
             raise "Invalid field type"
         
         typ = f.type.get_pointee()
+        children = iter(f.get_children())
+        next(children) # Skip the return type
+        next(children) # Skip the "This" parameter
+        return ComMethod._generate(f.displayname, children, typ, generator)
 
+
+    def _generate(name, children, typ, generator):
         if typ.kind != clang.cindex.TypeKind.FUNCTIONPROTO:
             raise "Invalid field type"
 
         ret_type = generator.resolve_type(typ.get_result())
-        children = iter(f.get_children())
-        next(children) # Skip the return type
-        next(children) # Skip the "This" parameter
         
         params = [ (param.displayname, generator.resolve_type(param.type)) for param in children if param.kind == clang.cindex.CursorKind.PARM_DECL ]
-        return ComMethod(f.displayname, ret_type, params)
+        return ComMethod(name, ret_type, params)
 
     def write_impl(self, f, indent):
         f.write(indent + f"public {self.return_type} {escape_name(self.name)}(")
@@ -138,12 +145,20 @@ class ComInterface():
         if self.name == "" or self.name is None:
             self.name = name
 
-        self.methods = [
-            ComMethod.generate(f, generator) 
-            for f in cursor.type.get_fields()
-            # Skip the IUnknown methods
-            if f.displayname not in ["QueryInterface", "AddRef", "Release"]
-        ]
+        if cursor.is_abstract_record():
+            self.methods = [
+                ComMethod.generate_from_method(c, generator) 
+                for c in cursor.get_children()
+                # Skip the IUnknown methods
+                if c.kind == clang.cindex.CursorKind.CXX_METHOD
+            ]
+        else:
+            self.methods = [
+                ComMethod.generate_from_field(f, generator) 
+                for f in cursor.type.get_fields()
+                # Skip the IUnknown methods
+                if f.displayname not in ["QueryInterface", "AddRef", "Release"]
+            ]
 
     def write(self, f):
         f.write(f"unsafe record struct {self.basename}Ptr(IntPtr Pointer)\n")
@@ -247,12 +262,7 @@ class ComGenerator():
         while len(self.root_names) > 0:
             for cursor in tu.cursor.get_children():
                 if cursor.kind == clang.cindex.CursorKind.STRUCT_DECL and cursor.is_definition() and cursor.displayname in self.root_names:
-                    if cursor.is_abstract_record():
-                        # C++-style
-                        ipdb.set_trace()
-                    else:
-                        # C-style
-                        self.resolve_type(cursor.type)
+                    self.resolve_type(cursor.type)
                     self.root_names.remove(cursor.displayname)
         
         self.files[file] = self.file_types
@@ -275,10 +285,7 @@ class ComGenerator():
         ipdb.set_trace()
 
     def resolve_type(self, typ):
-        if typ.spelling in self.mapped_types:
-            return Primitive(self.mapped_types[typ.spelling])
-
-        dotnet_type = map_dotnet_type(typ)
+        dotnet_type = map_dotnet_type(typ, self.mapped_types)
         underlying = dotnet_type.get_underlying()
         if isinstance(underlying, DeclaredType):
             self.declare_type(underlying, underlying.declaration)
@@ -294,7 +301,7 @@ class ComGenerator():
 
         canon = type.get_canonical()
         if isinstance(canon, Interface):
-            if not canon.is_vtable:
+            if not decl.is_abstract_record() and not canon.is_vtable:
                 # This isn't the Vtbl for the interface
                 # So add that to the queue to be defined later
                 self.root_names.append(canon.name + "Vtbl")

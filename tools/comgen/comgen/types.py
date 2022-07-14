@@ -21,7 +21,7 @@ class DotNetType():
     def get_param_name(self, param_name):
         return param_name
 
-class Primitive(DotNetType):
+class Mapped(DotNetType):
     def __init__(self, name):
         self.name = name
 
@@ -34,16 +34,16 @@ class Primitive(DotNetType):
     def get_field_form(self):
         return self.name
 
-Primitive.mappings = {
-    clang.cindex.TypeKind.LONGLONG: Primitive("long"),
-    clang.cindex.TypeKind.ULONGLONG: Primitive("ulong"),
-    clang.cindex.TypeKind.INT: Primitive("int"),
-    clang.cindex.TypeKind.UINT: Primitive("uint"),
-    clang.cindex.TypeKind.SHORT: Primitive("short"),
-    clang.cindex.TypeKind.USHORT: Primitive("ushort"),
-    clang.cindex.TypeKind.UCHAR: Primitive("char"),
-    clang.cindex.TypeKind.CHAR_S: Primitive("char"),
-    clang.cindex.TypeKind.CHAR_U: Primitive("char"),
+Mapped.mappings = {
+    clang.cindex.TypeKind.LONGLONG: Mapped("long"),
+    clang.cindex.TypeKind.ULONGLONG: Mapped("ulong"),
+    clang.cindex.TypeKind.INT: Mapped("int"),
+    clang.cindex.TypeKind.UINT: Mapped("uint"),
+    clang.cindex.TypeKind.SHORT: Mapped("short"),
+    clang.cindex.TypeKind.USHORT: Mapped("ushort"),
+    clang.cindex.TypeKind.UCHAR: Mapped("byte"),
+    clang.cindex.TypeKind.CHAR_S: Mapped("char"),
+    clang.cindex.TypeKind.CHAR_U: Mapped("char"),
 }
 
 class Function(DotNetType):
@@ -163,24 +163,25 @@ class TypeDef(DotNetType):
     def get_param_form(self):
         return self.canonical.get_param_form()
 
-class Pointer(DotNetType):
+class Reference(DotNetType):
     def __init__(self, pointee):
         self.pointee = pointee
 
     def __repr__(self):
-        return f"Pointer<{self.pointee}>"
+        return f"Ref<{self.pointee}>"
 
     def get_canonical(self):
-        return Pointer(self.pointee.get_canonical())
+        return Reference(self.pointee.get_canonical())
 
     def get_underlying(self):
         return self.pointee.get_underlying()
     
     def get_param_name(self, param_name):
-        if isinstance(self.pointee, Pointer) or isinstance(self.pointee, Interface) or isinstance(self.pointee, Void):
+        t = self.get_canonical()
+        if isinstance(t.pointee, Interface) or isinstance(t.pointee, Void) or isinstance(t.pointee, Function):
             return param_name
-        else:
-            return f"ref {param_name}"
+
+        return f"ref {param_name}"
 
     def get_field_form(self):
         t = self.get_canonical()
@@ -202,10 +203,35 @@ class Pointer(DotNetType):
 
     def get_param_form(self):
         t = self.get_canonical()
+        if isinstance(t.pointee, Interface):
+            # Special cases for IUnknown and IStrema
+            if t.pointee.name == "IUnknown" or t.pointee.name == "IStream":
+                return "IntPtr"
+            # Use the special pointer type we create for each interface
+            return f"{t.pointee.name[1:]}Ptr"
+        elif isinstance(t.pointee, Void):
+            return f"IntPtr"
+        elif isinstance(t.pointee, Mapped) and t.pointee.name == "char":
+            return "char*"
+        return f"ref {t.pointee.get_param_form()}"
+
+class Pointer(Reference):
+    def __init__(self, pointee):
+        super().__init__(pointee)
+
+    def __repr__(self):
+        return f"Pointer<{self.pointee}>"
+
+    def get_canonical(self):
+        return Pointer(self.pointee.get_canonical())
+
+    def get_underlying(self):
+        return self.pointee.get_underlying()
+
+    def get_param_form(self):
+        t = self.get_canonical()
         # If the inner type is a pointer, we need to be a pointer
-        if isinstance(t.pointee, Pointer):
-            return f"{t.pointee.get_param_form()}*"
-        elif isinstance(t.pointee, Interface):
+        if isinstance(t.pointee, Interface):
             # Special cases for IUnknown and IStrema
             if t.pointee.name == "IUnknown" or t.pointee.name == "IStream":
                 return "IntPtr"
@@ -219,37 +245,49 @@ class Pointer(DotNetType):
             return f"delegate* unmanaged[Stdcall]<{', '.join(args)}, {ret}>"
         else:
             # But if not, we can use 'ref'
-            return f"ref {t.pointee.get_param_form()}"
+            return f"{t.pointee.get_param_form()}*"
 
-def map_dotnet_type(typ) -> DotNetType:
-    mapped = Primitive.mappings.get(typ.kind)
+def map_dotnet_type(typ, mapped_types, in_ref = False) -> DotNetType:
+    mapped = Mapped.mappings.get(typ.kind)
     if mapped is not None:
+        # if mapped.name == "char":
+        #     ipdb.set_trace()
         return mapped
 
+    mapped = mapped_types.get(typ.spelling)
+    if mapped is not None:
+        return Mapped(mapped)
+
     if typ.kind == clang.cindex.TypeKind.ELABORATED:
-        return map_dotnet_type(typ.get_canonical())
+        return map_dotnet_type(typ.get_canonical(), mapped_types, in_ref=in_ref)
 
     if typ.kind == clang.cindex.TypeKind.TYPEDEF:
-        canon = map_dotnet_type(typ.get_canonical())
+        canon = map_dotnet_type(typ.get_canonical(), mapped_types, in_ref=in_ref)
         return TypeDef(typ.spelling, canon)
 
     if typ.kind == clang.cindex.TypeKind.RECORD:
         decl = typ.get_declaration()
+        mapped = mapped_types.get(decl.displayname)
+        if mapped is not None:
+            return Mapped(mapped)
         if decl.displayname.startswith("I"):
             return Interface(decl)
         else:
             return Struct(decl)
 
     if typ.kind == clang.cindex.TypeKind.POINTER:
-        pointee = map_dotnet_type(typ.get_pointee())
-        return Pointer(pointee)
+        pointee = map_dotnet_type(typ.get_pointee(), mapped_types, in_ref=True)
+        if in_ref:
+            return Pointer(pointee)
+        else:
+            return Reference(pointee)
 
     if typ.kind == clang.cindex.TypeKind.INCOMPLETEARRAY:
-        inner = map_dotnet_type(typ.element_type)
+        inner = map_dotnet_type(typ.element_type, mapped_types, in_ref=in_ref)
         return Array(inner)
 
     if typ.kind == clang.cindex.TypeKind.CONSTANTARRAY:
-        inner = map_dotnet_type(typ.element_type)
+        inner = map_dotnet_type(typ.element_type, mapped_types, in_ref=in_ref)
         return Array(inner, typ.element_count)
 
     if typ.kind == clang.cindex.TypeKind.ENUM:
@@ -259,8 +297,8 @@ def map_dotnet_type(typ) -> DotNetType:
         return Void()
 
     if typ.kind == clang.cindex.TypeKind.FUNCTIONPROTO:
-        ret = map_dotnet_type(typ.get_result())
-        args = [map_dotnet_type(arg) for arg in typ.argument_types()]
+        ret = map_dotnet_type(typ.get_result(), mapped_types, in_ref=in_ref)
+        args = [map_dotnet_type(arg, mapped_types, in_ref=in_ref) for arg in typ.argument_types()]
         return Function(ret, args)
 
     ipdb.set_trace()

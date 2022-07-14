@@ -42,4 +42,5 @@ static class InterfaceIds
     public static readonly Guid ICorDebugModuleBreakpoint = Guid.Parse("CC7BCAEA-8A68-11d2-983C-0000F808342D");
     public static readonly Guid ICorDebugValueBreakpoint = Guid.Parse("CC7BCAEB-8A68-11d2-983C-0000F808342D");
     public static readonly Guid ICorDebugRegisterSet = Guid.Parse("CC7BCB0B-8A68-11d2-983C-0000F808342D");
+    public static readonly Guid IMetaDataImport = Guid.Parse("7DAC8207-D3AE-4c75-9B67-92801A497D44");
 }

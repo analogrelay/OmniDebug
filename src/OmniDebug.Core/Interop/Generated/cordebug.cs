@@ -65,10 +65,10 @@ unsafe class CorDebugManagedCallback: CallableCOMWrapper
     public HResult DebuggerError(CorDebugProcessPtr pProcess, HResult errorHR, uint errorCode)
         => VTable.DebuggerErrorPtr(Self, pProcess, errorHR, errorCode);
 
-    public HResult LogMessage(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref int pLogSwitchName, ref int pMessage)
+    public HResult LogMessage(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref ushort pLogSwitchName, ref ushort pMessage)
         => VTable.LogMessagePtr(Self, pAppDomain, pThread, lLevel, ref pLogSwitchName, ref pMessage);
 
-    public HResult LogSwitch(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref int pLogSwitchName, ref int pParentName)
+    public HResult LogSwitch(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref ushort pLogSwitchName, ref ushort pParentName)
         => VTable.LogSwitchPtr(Self, pAppDomain, pThread, lLevel, ulReason, ref pLogSwitchName, ref pParentName);
 
     public HResult CreateAppDomain(CorDebugProcessPtr pProcess, CorDebugAppDomainPtr pAppDomain)
@@ -116,8 +116,8 @@ unsafe class CorDebugManagedCallback: CallableCOMWrapper
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugClassPtr, HResult> LoadClassPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugClassPtr, HResult> UnloadClassPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, HResult, uint, HResult> DebuggerErrorPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugThreadPtr, int, ref int, ref int, HResult> LogMessagePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugThreadPtr, int, uint, ref int, ref int, HResult> LogSwitchPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugThreadPtr, int, ref ushort, ref ushort, HResult> LogMessagePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugThreadPtr, int, uint, ref ushort, ref ushort, HResult> LogSwitchPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, CorDebugAppDomainPtr, HResult> CreateAppDomainPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, CorDebugAppDomainPtr, HResult> ExitAppDomainPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugAssemblyPtr, HResult> LoadAssemblyPtr;
@@ -161,7 +161,7 @@ unsafe class CorDebugManagedCallback2: CallableCOMWrapper
     public HResult FunctionRemapOpportunity(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pOldFunction, CorDebugFunctionPtr pNewFunction, uint oldILOffset)
         => VTable.FunctionRemapOpportunityPtr(Self, pAppDomain, pThread, pOldFunction, pNewFunction, oldILOffset);
 
-    public HResult CreateConnection(CorDebugProcessPtr pProcess, uint dwConnectionId, ref int pConnName)
+    public HResult CreateConnection(CorDebugProcessPtr pProcess, uint dwConnectionId, ref ushort pConnName)
         => VTable.CreateConnectionPtr(Self, pProcess, dwConnectionId, ref pConnName);
 
     public HResult ChangeConnection(CorDebugProcessPtr pProcess, uint dwConnectionId)
@@ -186,7 +186,7 @@ unsafe class CorDebugManagedCallback2: CallableCOMWrapper
     private readonly struct ICorDebugManagedCallback2VTable
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugThreadPtr, CorDebugFunctionPtr, CorDebugFunctionPtr, uint, HResult> FunctionRemapOpportunityPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, uint, ref int, HResult> CreateConnectionPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, uint, ref ushort, HResult> CreateConnectionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, uint, HResult> ChangeConnectionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr, uint, HResult> DestroyConnectionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr, CorDebugThreadPtr, CorDebugFramePtr, uint, CorDebugExceptionCallbackType, uint, HResult> ExceptionPtr;
@@ -239,17 +239,17 @@ unsafe class CorDebug: CallableCOMWrapper
     public HResult SetUnmanagedHandler(CorDebugUnmanagedCallbackPtr pCallback)
         => VTable.SetUnmanagedHandlerPtr(Self, pCallback);
 
-    public HResult CreateProcessW(ref int lpApplicationName, ref int lpCommandLine, ref SECURITY_ATTRIBUTES lpProcessAttributes, ref SECURITY_ATTRIBUTES lpThreadAttributes, bool bInheritHandles, uint dwCreationFlags, IntPtr lpEnvironment, ref int lpCurrentDirectory, ref STARTUPINFOW lpStartupInfo, ref PROCESS_INFORMATION lpProcessInformation, CorDebugCreateProcessFlags debuggingFlags, CorDebugProcessPtr* ppProcess)
-        => VTable.CreateProcessWPtr(Self, ref lpApplicationName, ref lpCommandLine, ref lpProcessAttributes, ref lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, ref lpCurrentDirectory, ref lpStartupInfo, ref lpProcessInformation, debuggingFlags, ppProcess);
+    public HResult CreateProcessW(ref ushort lpApplicationName, char* lpCommandLine, ref SECURITY_ATTRIBUTES lpProcessAttributes, ref SECURITY_ATTRIBUTES lpThreadAttributes, bool bInheritHandles, uint dwCreationFlags, IntPtr lpEnvironment, ref ushort lpCurrentDirectory, ref STARTUPINFOW lpStartupInfo, ref PROCESS_INFORMATION lpProcessInformation, CorDebugCreateProcessFlags debuggingFlags, ref CorDebugProcessPtr ppProcess)
+        => VTable.CreateProcessWPtr(Self, ref lpApplicationName, lpCommandLine, ref lpProcessAttributes, ref lpThreadAttributes, bInheritHandles, dwCreationFlags, lpEnvironment, ref lpCurrentDirectory, ref lpStartupInfo, ref lpProcessInformation, debuggingFlags, ref ppProcess);
 
-    public HResult DebugActiveProcess(uint id, bool win32Attach, CorDebugProcessPtr* ppProcess)
-        => VTable.DebugActiveProcessPtr(Self, id, win32Attach, ppProcess);
+    public HResult DebugActiveProcess(uint id, bool win32Attach, ref CorDebugProcessPtr ppProcess)
+        => VTable.DebugActiveProcessPtr(Self, id, win32Attach, ref ppProcess);
 
-    public HResult EnumerateProcesses(CorDebugProcessEnumPtr* ppProcess)
-        => VTable.EnumerateProcessesPtr(Self, ppProcess);
+    public HResult EnumerateProcesses(ref CorDebugProcessEnumPtr ppProcess)
+        => VTable.EnumerateProcessesPtr(Self, ref ppProcess);
 
-    public HResult GetProcess(uint dwProcessId, CorDebugProcessPtr* ppProcess)
-        => VTable.GetProcessPtr(Self, dwProcessId, ppProcess);
+    public HResult GetProcess(uint dwProcessId, ref CorDebugProcessPtr ppProcess)
+        => VTable.GetProcessPtr(Self, dwProcessId, ref ppProcess);
 
     public HResult CanLaunchOrAttach(uint dwProcessId, bool win32DebuggingEnabled)
         => VTable.CanLaunchOrAttachPtr(Self, dwProcessId, win32DebuggingEnabled);
@@ -261,10 +261,10 @@ unsafe class CorDebug: CallableCOMWrapper
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> TerminatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugManagedCallbackPtr, HResult> SetManagedHandlerPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugUnmanagedCallbackPtr, HResult> SetUnmanagedHandlerPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, ref int, ref SECURITY_ATTRIBUTES, ref SECURITY_ATTRIBUTES, bool, uint, IntPtr, ref int, ref STARTUPINFOW, ref PROCESS_INFORMATION, CorDebugCreateProcessFlags, CorDebugProcessPtr*, HResult> CreateProcessWPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, bool, CorDebugProcessPtr*, HResult> DebugActiveProcessPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessEnumPtr*, HResult> EnumerateProcessesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugProcessPtr*, HResult> GetProcessPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ushort, char*, ref SECURITY_ATTRIBUTES, ref SECURITY_ATTRIBUTES, bool, uint, IntPtr, ref ushort, ref STARTUPINFOW, ref PROCESS_INFORMATION, CorDebugCreateProcessFlags, ref CorDebugProcessPtr, HResult> CreateProcessWPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, bool, ref CorDebugProcessPtr, HResult> DebugActiveProcessPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugProcessEnumPtr, HResult> EnumerateProcessesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref CorDebugProcessPtr, HResult> GetProcessPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, bool, HResult> CanLaunchOrAttachPtr;
     }
 }
@@ -287,11 +287,11 @@ unsafe struct STARTUPINFOW
     [FieldOffset(0)]
     public uint cb;
     [FieldOffset(64)]
-    public int* lpReserved_PAL_Undefined;
+    public char* lpReserved_PAL_Undefined;
     [FieldOffset(128)]
-    public int* lpDesktop_PAL_Undefined;
+    public char* lpDesktop_PAL_Undefined;
     [FieldOffset(192)]
-    public int* lpTitle_PAL_Undefined;
+    public char* lpTitle_PAL_Undefined;
     [FieldOffset(256)]
     public uint dwX_PAL_Undefined;
     [FieldOffset(288)]
@@ -313,7 +313,7 @@ unsafe struct STARTUPINFOW
     [FieldOffset(528)]
     public ushort cbReserved2_PAL_Undefined;
     [FieldOffset(576)]
-    public char* lpReserved2_PAL_Undefined;
+    public byte* lpReserved2_PAL_Undefined;
     [FieldOffset(640)]
     public IntPtr hStdInput;
     [FieldOffset(704)]
@@ -362,14 +362,14 @@ unsafe class CorDebugController: CallableCOMWrapper
     public HResult Continue(bool fIsOutOfBand)
         => VTable.ContinuePtr(Self, fIsOutOfBand);
 
-    public HResult IsRunning(ref int pbRunning)
+    public HResult IsRunning(ref bool pbRunning)
         => VTable.IsRunningPtr(Self, ref pbRunning);
 
-    public HResult HasQueuedCallbacks(CorDebugThreadPtr pThread, ref int pbQueued)
+    public HResult HasQueuedCallbacks(CorDebugThreadPtr pThread, ref bool pbQueued)
         => VTable.HasQueuedCallbacksPtr(Self, pThread, ref pbQueued);
 
-    public HResult EnumerateThreads(CorDebugThreadEnumPtr* ppThreads)
-        => VTable.EnumerateThreadsPtr(Self, ppThreads);
+    public HResult EnumerateThreads(ref CorDebugThreadEnumPtr ppThreads)
+        => VTable.EnumerateThreadsPtr(Self, ref ppThreads);
 
     public HResult SetAllThreadsDebugState(CorDebugThreadState state, CorDebugThreadPtr pExceptThisThread)
         => VTable.SetAllThreadsDebugStatePtr(Self, state, pExceptThisThread);
@@ -380,25 +380,25 @@ unsafe class CorDebugController: CallableCOMWrapper
     public HResult Terminate(uint exitCode)
         => VTable.TerminatePtr(Self, exitCode);
 
-    public HResult CanCommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, CorDebugErrorInfoEnumPtr* pError)
-        => VTable.CanCommitChangesPtr(Self, cSnapshots, pSnapshots, pError);
+    public HResult CanCommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, ref CorDebugErrorInfoEnumPtr pError)
+        => VTable.CanCommitChangesPtr(Self, cSnapshots, pSnapshots, ref pError);
 
-    public HResult CommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, CorDebugErrorInfoEnumPtr* pError)
-        => VTable.CommitChangesPtr(Self, cSnapshots, pSnapshots, pError);
+    public HResult CommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, ref CorDebugErrorInfoEnumPtr pError)
+        => VTable.CommitChangesPtr(Self, cSnapshots, pSnapshots, ref pError);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugControllerVTable
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> StopPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ContinuePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsRunningPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr, ref int, HResult> HasQueuedCallbacksPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadEnumPtr*, HResult> EnumerateThreadsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsRunningPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr, ref bool, HResult> HasQueuedCallbacksPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugThreadEnumPtr, HResult> EnumerateThreadsPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadState, CorDebugThreadPtr, HResult> SetAllThreadsDebugStatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> DetachPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> TerminatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], CorDebugErrorInfoEnumPtr*, HResult> CanCommitChangesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], CorDebugErrorInfoEnumPtr*, HResult> CommitChangesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], ref CorDebugErrorInfoEnumPtr, HResult> CanCommitChangesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], ref CorDebugErrorInfoEnumPtr, HResult> CommitChangesPtr;
     }
 }
 
@@ -431,14 +431,14 @@ unsafe class CorDebugAppDomain: CallableCOMWrapper
     public HResult Continue(bool fIsOutOfBand)
         => VTable.ContinuePtr(Self, fIsOutOfBand);
 
-    public HResult IsRunning(ref int pbRunning)
+    public HResult IsRunning(ref bool pbRunning)
         => VTable.IsRunningPtr(Self, ref pbRunning);
 
-    public HResult HasQueuedCallbacks(CorDebugThreadPtr pThread, ref int pbQueued)
+    public HResult HasQueuedCallbacks(CorDebugThreadPtr pThread, ref bool pbQueued)
         => VTable.HasQueuedCallbacksPtr(Self, pThread, ref pbQueued);
 
-    public HResult EnumerateThreads(CorDebugThreadEnumPtr* ppThreads)
-        => VTable.EnumerateThreadsPtr(Self, ppThreads);
+    public HResult EnumerateThreads(ref CorDebugThreadEnumPtr ppThreads)
+        => VTable.EnumerateThreadsPtr(Self, ref ppThreads);
 
     public HResult SetAllThreadsDebugState(CorDebugThreadState state, CorDebugThreadPtr pExceptThisThread)
         => VTable.SetAllThreadsDebugStatePtr(Self, state, pExceptThisThread);
@@ -449,35 +449,35 @@ unsafe class CorDebugAppDomain: CallableCOMWrapper
     public HResult Terminate(uint exitCode)
         => VTable.TerminatePtr(Self, exitCode);
 
-    public HResult CanCommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, CorDebugErrorInfoEnumPtr* pError)
-        => VTable.CanCommitChangesPtr(Self, cSnapshots, pSnapshots, pError);
+    public HResult CanCommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, ref CorDebugErrorInfoEnumPtr pError)
+        => VTable.CanCommitChangesPtr(Self, cSnapshots, pSnapshots, ref pError);
 
-    public HResult CommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, CorDebugErrorInfoEnumPtr* pError)
-        => VTable.CommitChangesPtr(Self, cSnapshots, pSnapshots, pError);
+    public HResult CommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, ref CorDebugErrorInfoEnumPtr pError)
+        => VTable.CommitChangesPtr(Self, cSnapshots, pSnapshots, ref pError);
 
-    public HResult GetProcess(CorDebugProcessPtr* ppProcess)
-        => VTable.GetProcessPtr(Self, ppProcess);
+    public HResult GetProcess(ref CorDebugProcessPtr ppProcess)
+        => VTable.GetProcessPtr(Self, ref ppProcess);
 
-    public HResult EnumerateAssemblies(CorDebugAssemblyEnumPtr* ppAssemblies)
-        => VTable.EnumerateAssembliesPtr(Self, ppAssemblies);
+    public HResult EnumerateAssemblies(ref CorDebugAssemblyEnumPtr ppAssemblies)
+        => VTable.EnumerateAssembliesPtr(Self, ref ppAssemblies);
 
-    public HResult GetModuleFromMetaDataInterface(IntPtr pIMetaData, CorDebugModulePtr* ppModule)
-        => VTable.GetModuleFromMetaDataInterfacePtr(Self, pIMetaData, ppModule);
+    public HResult GetModuleFromMetaDataInterface(IntPtr pIMetaData, ref CorDebugModulePtr ppModule)
+        => VTable.GetModuleFromMetaDataInterfacePtr(Self, pIMetaData, ref ppModule);
 
-    public HResult EnumerateBreakpoints(CorDebugBreakpointEnumPtr* ppBreakpoints)
-        => VTable.EnumerateBreakpointsPtr(Self, ppBreakpoints);
+    public HResult EnumerateBreakpoints(ref CorDebugBreakpointEnumPtr ppBreakpoints)
+        => VTable.EnumerateBreakpointsPtr(Self, ref ppBreakpoints);
 
-    public HResult EnumerateSteppers(CorDebugStepperEnumPtr* ppSteppers)
-        => VTable.EnumerateSteppersPtr(Self, ppSteppers);
+    public HResult EnumerateSteppers(ref CorDebugStepperEnumPtr ppSteppers)
+        => VTable.EnumerateSteppersPtr(Self, ref ppSteppers);
 
-    public HResult IsAttached(ref int pbAttached)
+    public HResult IsAttached(ref bool pbAttached)
         => VTable.IsAttachedPtr(Self, ref pbAttached);
 
-    public HResult GetName(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetName(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetNamePtr(Self, cchName, ref pcchName, szName);
 
-    public HResult GetObject(CorDebugValuePtr* ppObject)
-        => VTable.GetObjectPtr(Self, ppObject);
+    public HResult GetObject(ref CorDebugValuePtr ppObject)
+        => VTable.GetObjectPtr(Self, ref ppObject);
 
     public HResult Attach()
         => VTable.AttachPtr(Self);
@@ -490,22 +490,22 @@ unsafe class CorDebugAppDomain: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> StopPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ContinuePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsRunningPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr, ref int, HResult> HasQueuedCallbacksPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadEnumPtr*, HResult> EnumerateThreadsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsRunningPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr, ref bool, HResult> HasQueuedCallbacksPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugThreadEnumPtr, HResult> EnumerateThreadsPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadState, CorDebugThreadPtr, HResult> SetAllThreadsDebugStatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> DetachPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> TerminatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], CorDebugErrorInfoEnumPtr*, HResult> CanCommitChangesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], CorDebugErrorInfoEnumPtr*, HResult> CommitChangesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr*, HResult> GetProcessPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAssemblyEnumPtr*, HResult> EnumerateAssembliesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr, CorDebugModulePtr*, HResult> GetModuleFromMetaDataInterfacePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugBreakpointEnumPtr*, HResult> EnumerateBreakpointsPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugStepperEnumPtr*, HResult> EnumerateSteppersPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsAttachedPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetNamePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValuePtr*, HResult> GetObjectPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], ref CorDebugErrorInfoEnumPtr, HResult> CanCommitChangesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], ref CorDebugErrorInfoEnumPtr, HResult> CommitChangesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugProcessPtr, HResult> GetProcessPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugAssemblyEnumPtr, HResult> EnumerateAssembliesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr, ref CorDebugModulePtr, HResult> GetModuleFromMetaDataInterfacePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugBreakpointEnumPtr, HResult> EnumerateBreakpointsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugStepperEnumPtr, HResult> EnumerateSteppersPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsAttachedPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetNamePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValuePtr, HResult> GetObjectPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> AttachPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetIDPtr;
     }
@@ -528,29 +528,29 @@ unsafe class CorDebugAssembly: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetProcess(CorDebugProcessPtr* ppProcess)
-        => VTable.GetProcessPtr(Self, ppProcess);
+    public HResult GetProcess(ref CorDebugProcessPtr ppProcess)
+        => VTable.GetProcessPtr(Self, ref ppProcess);
 
-    public HResult GetAppDomain(CorDebugAppDomainPtr* ppAppDomain)
-        => VTable.GetAppDomainPtr(Self, ppAppDomain);
+    public HResult GetAppDomain(ref CorDebugAppDomainPtr ppAppDomain)
+        => VTable.GetAppDomainPtr(Self, ref ppAppDomain);
 
-    public HResult EnumerateModules(CorDebugModuleEnumPtr* ppModules)
-        => VTable.EnumerateModulesPtr(Self, ppModules);
+    public HResult EnumerateModules(ref CorDebugModuleEnumPtr ppModules)
+        => VTable.EnumerateModulesPtr(Self, ref ppModules);
 
-    public HResult GetCodeBase(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetCodeBase(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetCodeBasePtr(Self, cchName, ref pcchName, szName);
 
-    public HResult GetName(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetName(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetNamePtr(Self, cchName, ref pcchName, szName);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugAssemblyVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr*, HResult> GetProcessPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr*, HResult> GetAppDomainPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugModuleEnumPtr*, HResult> EnumerateModulesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetCodeBasePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetNamePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugProcessPtr, HResult> GetProcessPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugAppDomainPtr, HResult> GetAppDomainPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugModuleEnumPtr, HResult> EnumerateModulesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetCodeBasePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetNamePtr;
     }
 }
 
@@ -577,14 +577,14 @@ unsafe class CorDebugProcess: CallableCOMWrapper
     public HResult Continue(bool fIsOutOfBand)
         => VTable.ContinuePtr(Self, fIsOutOfBand);
 
-    public HResult IsRunning(ref int pbRunning)
+    public HResult IsRunning(ref bool pbRunning)
         => VTable.IsRunningPtr(Self, ref pbRunning);
 
-    public HResult HasQueuedCallbacks(CorDebugThreadPtr pThread, ref int pbQueued)
+    public HResult HasQueuedCallbacks(CorDebugThreadPtr pThread, ref bool pbQueued)
         => VTable.HasQueuedCallbacksPtr(Self, pThread, ref pbQueued);
 
-    public HResult EnumerateThreads(CorDebugThreadEnumPtr* ppThreads)
-        => VTable.EnumerateThreadsPtr(Self, ppThreads);
+    public HResult EnumerateThreads(ref CorDebugThreadEnumPtr ppThreads)
+        => VTable.EnumerateThreadsPtr(Self, ref ppThreads);
 
     public HResult SetAllThreadsDebugState(CorDebugThreadState state, CorDebugThreadPtr pExceptThisThread)
         => VTable.SetAllThreadsDebugStatePtr(Self, state, pExceptThisThread);
@@ -595,40 +595,40 @@ unsafe class CorDebugProcess: CallableCOMWrapper
     public HResult Terminate(uint exitCode)
         => VTable.TerminatePtr(Self, exitCode);
 
-    public HResult CanCommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, CorDebugErrorInfoEnumPtr* pError)
-        => VTable.CanCommitChangesPtr(Self, cSnapshots, pSnapshots, pError);
+    public HResult CanCommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, ref CorDebugErrorInfoEnumPtr pError)
+        => VTable.CanCommitChangesPtr(Self, cSnapshots, pSnapshots, ref pError);
 
-    public HResult CommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, CorDebugErrorInfoEnumPtr* pError)
-        => VTable.CommitChangesPtr(Self, cSnapshots, pSnapshots, pError);
+    public HResult CommitChanges(uint cSnapshots, CorDebugEditAndContinueSnapshotPtr[] pSnapshots, ref CorDebugErrorInfoEnumPtr pError)
+        => VTable.CommitChangesPtr(Self, cSnapshots, pSnapshots, ref pError);
 
     public HResult GetID(ref uint pdwProcessId)
         => VTable.GetIDPtr(Self, ref pdwProcessId);
 
-    public HResult GetHandle(IntPtr* phProcessHandle)
-        => VTable.GetHandlePtr(Self, phProcessHandle);
+    public HResult GetHandle(ref IntPtr phProcessHandle)
+        => VTable.GetHandlePtr(Self, ref phProcessHandle);
 
-    public HResult GetThread(uint dwThreadId, CorDebugThreadPtr* ppThread)
-        => VTable.GetThreadPtr(Self, dwThreadId, ppThread);
+    public HResult GetThread(uint dwThreadId, ref CorDebugThreadPtr ppThread)
+        => VTable.GetThreadPtr(Self, dwThreadId, ref ppThread);
 
-    public HResult EnumerateObjects(CorDebugObjectEnumPtr* ppObjects)
-        => VTable.EnumerateObjectsPtr(Self, ppObjects);
+    public HResult EnumerateObjects(ref CorDebugObjectEnumPtr ppObjects)
+        => VTable.EnumerateObjectsPtr(Self, ref ppObjects);
 
-    public HResult IsTransitionStub(ulong address, ref int pbTransitionStub)
+    public HResult IsTransitionStub(ulong address, ref bool pbTransitionStub)
         => VTable.IsTransitionStubPtr(Self, address, ref pbTransitionStub);
 
-    public HResult IsOSSuspended(uint threadID, ref int pbSuspended)
+    public HResult IsOSSuspended(uint threadID, ref bool pbSuspended)
         => VTable.IsOSSuspendedPtr(Self, threadID, ref pbSuspended);
 
-    public HResult GetThreadContext(uint threadID, uint contextSize, char[] context)
+    public HResult GetThreadContext(uint threadID, uint contextSize, byte[] context)
         => VTable.GetThreadContextPtr(Self, threadID, contextSize, context);
 
-    public HResult SetThreadContext(uint threadID, uint contextSize, char[] context)
+    public HResult SetThreadContext(uint threadID, uint contextSize, byte[] context)
         => VTable.SetThreadContextPtr(Self, threadID, contextSize, context);
 
-    public HResult ReadMemory(ulong address, uint size, char[] buffer, ref uint read)
+    public HResult ReadMemory(ulong address, uint size, byte[] buffer, ref uint read)
         => VTable.ReadMemoryPtr(Self, address, size, buffer, ref read);
 
-    public HResult WriteMemory(ulong address, uint size, char[] buffer, ref uint written)
+    public HResult WriteMemory(ulong address, uint size, byte[] buffer, ref uint written)
         => VTable.WriteMemoryPtr(Self, address, size, buffer, ref written);
 
     public HResult ClearCurrentException(uint threadID)
@@ -640,14 +640,14 @@ unsafe class CorDebugProcess: CallableCOMWrapper
     public HResult ModifyLogSwitch(int WCHAR)
         => VTable.ModifyLogSwitchPtr(Self, WCHAR);
 
-    public HResult EnumerateAppDomains(CorDebugAppDomainEnumPtr* ppAppDomains)
-        => VTable.EnumerateAppDomainsPtr(Self, ppAppDomains);
+    public HResult EnumerateAppDomains(ref CorDebugAppDomainEnumPtr ppAppDomains)
+        => VTable.EnumerateAppDomainsPtr(Self, ref ppAppDomains);
 
-    public HResult GetObject(CorDebugValuePtr* ppObject)
-        => VTable.GetObjectPtr(Self, ppObject);
+    public HResult GetObject(ref CorDebugValuePtr ppObject)
+        => VTable.GetObjectPtr(Self, ref ppObject);
 
-    public HResult ThreadForFiberCookie(uint fiberCookie, CorDebugThreadPtr* ppThread)
-        => VTable.ThreadForFiberCookiePtr(Self, fiberCookie, ppThread);
+    public HResult ThreadForFiberCookie(uint fiberCookie, ref CorDebugThreadPtr ppThread)
+        => VTable.ThreadForFiberCookiePtr(Self, fiberCookie, ref ppThread);
 
     public HResult GetHelperThreadID(ref uint pThreadID)
         => VTable.GetHelperThreadIDPtr(Self, ref pThreadID);
@@ -657,30 +657,30 @@ unsafe class CorDebugProcess: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> StopPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ContinuePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsRunningPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr, ref int, HResult> HasQueuedCallbacksPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadEnumPtr*, HResult> EnumerateThreadsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsRunningPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr, ref bool, HResult> HasQueuedCallbacksPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugThreadEnumPtr, HResult> EnumerateThreadsPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadState, CorDebugThreadPtr, HResult> SetAllThreadsDebugStatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> DetachPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> TerminatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], CorDebugErrorInfoEnumPtr*, HResult> CanCommitChangesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], CorDebugErrorInfoEnumPtr*, HResult> CommitChangesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], ref CorDebugErrorInfoEnumPtr, HResult> CanCommitChangesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueSnapshotPtr[], ref CorDebugErrorInfoEnumPtr, HResult> CommitChangesPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetIDPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr*, HResult> GetHandlePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugThreadPtr*, HResult> GetThreadPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugObjectEnumPtr*, HResult> EnumerateObjectsPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, ref int, HResult> IsTransitionStubPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref int, HResult> IsOSSuspendedPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, char[], HResult> GetThreadContextPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, char[], HResult> SetThreadContextPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, uint, char[], ref uint, HResult> ReadMemoryPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, uint, char[], ref uint, HResult> WriteMemoryPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref IntPtr, HResult> GetHandlePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref CorDebugThreadPtr, HResult> GetThreadPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugObjectEnumPtr, HResult> EnumerateObjectsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, ref bool, HResult> IsTransitionStubPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref bool, HResult> IsOSSuspendedPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, byte[], HResult> GetThreadContextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, byte[], HResult> SetThreadContextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, uint, byte[], ref uint, HResult> ReadMemoryPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, uint, byte[], ref uint, HResult> WriteMemoryPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> ClearCurrentExceptionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> EnableLogMessagesPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, int, HResult> ModifyLogSwitchPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainEnumPtr*, HResult> EnumerateAppDomainsPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValuePtr*, HResult> GetObjectPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugThreadPtr*, HResult> ThreadForFiberCookiePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugAppDomainEnumPtr, HResult> EnumerateAppDomainsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValuePtr, HResult> GetObjectPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref CorDebugThreadPtr, HResult> ThreadForFiberCookiePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetHelperThreadIDPtr;
     }
 }
@@ -705,14 +705,14 @@ unsafe class CorDebugBreakpoint: CallableCOMWrapper
     public HResult Activate(bool bActive)
         => VTable.ActivatePtr(Self, bActive);
 
-    public HResult IsActive(ref int pbActive)
+    public HResult IsActive(ref bool pbActive)
         => VTable.IsActivePtr(Self, ref pbActive);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugBreakpointVTable
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ActivatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsActivePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsActivePtr;
     }
 }
 
@@ -733,7 +733,7 @@ unsafe class CorDebugStepper: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult IsActive(ref int pbActive)
+    public HResult IsActive(ref bool pbActive)
         => VTable.IsActivePtr(Self, ref pbActive);
 
     public HResult Deactivate()
@@ -760,7 +760,7 @@ unsafe class CorDebugStepper: CallableCOMWrapper
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugStepperVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsActivePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsActivePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> DeactivatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugIntercept, HResult> SetInterceptMaskPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugUnmappedStop, HResult> SetUnmappedStopMaskPtr;
@@ -819,17 +819,17 @@ unsafe class CorDebugThread: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetProcess(CorDebugProcessPtr* ppProcess)
-        => VTable.GetProcessPtr(Self, ppProcess);
+    public HResult GetProcess(ref CorDebugProcessPtr ppProcess)
+        => VTable.GetProcessPtr(Self, ref ppProcess);
 
     public HResult GetID(ref uint pdwThreadId)
         => VTable.GetIDPtr(Self, ref pdwThreadId);
 
-    public HResult GetHandle(IntPtr* phThreadHandle)
-        => VTable.GetHandlePtr(Self, phThreadHandle);
+    public HResult GetHandle(ref IntPtr phThreadHandle)
+        => VTable.GetHandlePtr(Self, ref phThreadHandle);
 
-    public HResult GetAppDomain(CorDebugAppDomainPtr* ppAppDomain)
-        => VTable.GetAppDomainPtr(Self, ppAppDomain);
+    public HResult GetAppDomain(ref CorDebugAppDomainPtr ppAppDomain)
+        => VTable.GetAppDomainPtr(Self, ref ppAppDomain);
 
     public HResult SetDebugState(CorDebugThreadState state)
         => VTable.SetDebugStatePtr(Self, state);
@@ -840,52 +840,52 @@ unsafe class CorDebugThread: CallableCOMWrapper
     public HResult GetUserState(ref CorDebugUserState pState)
         => VTable.GetUserStatePtr(Self, ref pState);
 
-    public HResult GetCurrentException(CorDebugValuePtr* ppExceptionObject)
-        => VTable.GetCurrentExceptionPtr(Self, ppExceptionObject);
+    public HResult GetCurrentException(ref CorDebugValuePtr ppExceptionObject)
+        => VTable.GetCurrentExceptionPtr(Self, ref ppExceptionObject);
 
     public HResult ClearCurrentException()
         => VTable.ClearCurrentExceptionPtr(Self);
 
-    public HResult CreateStepper(CorDebugStepperPtr* ppStepper)
-        => VTable.CreateStepperPtr(Self, ppStepper);
+    public HResult CreateStepper(ref CorDebugStepperPtr ppStepper)
+        => VTable.CreateStepperPtr(Self, ref ppStepper);
 
-    public HResult EnumerateChains(CorDebugChainEnumPtr* ppChains)
-        => VTable.EnumerateChainsPtr(Self, ppChains);
+    public HResult EnumerateChains(ref CorDebugChainEnumPtr ppChains)
+        => VTable.EnumerateChainsPtr(Self, ref ppChains);
 
-    public HResult GetActiveChain(CorDebugChainPtr* ppChain)
-        => VTable.GetActiveChainPtr(Self, ppChain);
+    public HResult GetActiveChain(ref CorDebugChainPtr ppChain)
+        => VTable.GetActiveChainPtr(Self, ref ppChain);
 
-    public HResult GetActiveFrame(CorDebugFramePtr* ppFrame)
-        => VTable.GetActiveFramePtr(Self, ppFrame);
+    public HResult GetActiveFrame(ref CorDebugFramePtr ppFrame)
+        => VTable.GetActiveFramePtr(Self, ref ppFrame);
 
-    public HResult GetRegisterSet(CorDebugRegisterSetPtr* ppRegisters)
-        => VTable.GetRegisterSetPtr(Self, ppRegisters);
+    public HResult GetRegisterSet(ref CorDebugRegisterSetPtr ppRegisters)
+        => VTable.GetRegisterSetPtr(Self, ref ppRegisters);
 
-    public HResult CreateEval(CorDebugEvalPtr* ppEval)
-        => VTable.CreateEvalPtr(Self, ppEval);
+    public HResult CreateEval(ref CorDebugEvalPtr ppEval)
+        => VTable.CreateEvalPtr(Self, ref ppEval);
 
-    public HResult GetObject(CorDebugValuePtr* ppObject)
-        => VTable.GetObjectPtr(Self, ppObject);
+    public HResult GetObject(ref CorDebugValuePtr ppObject)
+        => VTable.GetObjectPtr(Self, ref ppObject);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugThreadVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr*, HResult> GetProcessPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugProcessPtr, HResult> GetProcessPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetIDPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr*, HResult> GetHandlePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAppDomainPtr*, HResult> GetAppDomainPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref IntPtr, HResult> GetHandlePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugAppDomainPtr, HResult> GetAppDomainPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadState, HResult> SetDebugStatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugThreadState, HResult> GetDebugStatePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugUserState, HResult> GetUserStatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValuePtr*, HResult> GetCurrentExceptionPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValuePtr, HResult> GetCurrentExceptionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ClearCurrentExceptionPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugStepperPtr*, HResult> CreateStepperPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainEnumPtr*, HResult> EnumerateChainsPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainPtr*, HResult> GetActiveChainPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFramePtr*, HResult> GetActiveFramePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugRegisterSetPtr*, HResult> GetRegisterSetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEvalPtr*, HResult> CreateEvalPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValuePtr*, HResult> GetObjectPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugStepperPtr, HResult> CreateStepperPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainEnumPtr, HResult> EnumerateChainsPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainPtr, HResult> GetActiveChainPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFramePtr, HResult> GetActiveFramePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugRegisterSetPtr, HResult> GetRegisterSetPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEvalPtr, HResult> CreateEvalPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValuePtr, HResult> GetObjectPtr;
     }
 }
 
@@ -919,38 +919,38 @@ unsafe class CorDebugChain: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetThread(CorDebugThreadPtr* ppThread)
-        => VTable.GetThreadPtr(Self, ppThread);
+    public HResult GetThread(ref CorDebugThreadPtr ppThread)
+        => VTable.GetThreadPtr(Self, ref ppThread);
 
     public HResult GetStackRange(ref ulong pStart, ref ulong pEnd)
         => VTable.GetStackRangePtr(Self, ref pStart, ref pEnd);
 
-    public HResult GetContext(CorDebugContextPtr* ppContext)
-        => VTable.GetContextPtr(Self, ppContext);
+    public HResult GetContext(ref CorDebugContextPtr ppContext)
+        => VTable.GetContextPtr(Self, ref ppContext);
 
-    public HResult GetCaller(CorDebugChainPtr* ppChain)
-        => VTable.GetCallerPtr(Self, ppChain);
+    public HResult GetCaller(ref CorDebugChainPtr ppChain)
+        => VTable.GetCallerPtr(Self, ref ppChain);
 
-    public HResult GetCallee(CorDebugChainPtr* ppChain)
-        => VTable.GetCalleePtr(Self, ppChain);
+    public HResult GetCallee(ref CorDebugChainPtr ppChain)
+        => VTable.GetCalleePtr(Self, ref ppChain);
 
-    public HResult GetPrevious(CorDebugChainPtr* ppChain)
-        => VTable.GetPreviousPtr(Self, ppChain);
+    public HResult GetPrevious(ref CorDebugChainPtr ppChain)
+        => VTable.GetPreviousPtr(Self, ref ppChain);
 
-    public HResult GetNext(CorDebugChainPtr* ppChain)
-        => VTable.GetNextPtr(Self, ppChain);
+    public HResult GetNext(ref CorDebugChainPtr ppChain)
+        => VTable.GetNextPtr(Self, ref ppChain);
 
-    public HResult IsManaged(ref int pManaged)
+    public HResult IsManaged(ref bool pManaged)
         => VTable.IsManagedPtr(Self, ref pManaged);
 
-    public HResult EnumerateFrames(CorDebugFrameEnumPtr* ppFrames)
-        => VTable.EnumerateFramesPtr(Self, ppFrames);
+    public HResult EnumerateFrames(ref CorDebugFrameEnumPtr ppFrames)
+        => VTable.EnumerateFramesPtr(Self, ref ppFrames);
 
-    public HResult GetActiveFrame(CorDebugFramePtr* ppFrame)
-        => VTable.GetActiveFramePtr(Self, ppFrame);
+    public HResult GetActiveFrame(ref CorDebugFramePtr ppFrame)
+        => VTable.GetActiveFramePtr(Self, ref ppFrame);
 
-    public HResult GetRegisterSet(CorDebugRegisterSetPtr* ppRegisters)
-        => VTable.GetRegisterSetPtr(Self, ppRegisters);
+    public HResult GetRegisterSet(ref CorDebugRegisterSetPtr ppRegisters)
+        => VTable.GetRegisterSetPtr(Self, ref ppRegisters);
 
     public HResult GetReason(ref CorDebugChainReason pReason)
         => VTable.GetReasonPtr(Self, ref pReason);
@@ -958,17 +958,17 @@ unsafe class CorDebugChain: CallableCOMWrapper
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugChainVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr*, HResult> GetThreadPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugThreadPtr, HResult> GetThreadPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, ref ulong, HResult> GetStackRangePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugContextPtr*, HResult> GetContextPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainPtr*, HResult> GetCallerPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainPtr*, HResult> GetCalleePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainPtr*, HResult> GetPreviousPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainPtr*, HResult> GetNextPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsManagedPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFrameEnumPtr*, HResult> EnumerateFramesPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFramePtr*, HResult> GetActiveFramePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugRegisterSetPtr*, HResult> GetRegisterSetPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugContextPtr, HResult> GetContextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainPtr, HResult> GetCallerPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainPtr, HResult> GetCalleePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainPtr, HResult> GetPreviousPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainPtr, HResult> GetNextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsManagedPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFrameEnumPtr, HResult> EnumerateFramesPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFramePtr, HResult> GetActiveFramePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugRegisterSetPtr, HResult> GetRegisterSetPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainReason, HResult> GetReasonPtr;
     }
 }
@@ -1007,14 +1007,14 @@ unsafe class CorDebugFrame: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetChain(CorDebugChainPtr* ppChain)
-        => VTable.GetChainPtr(Self, ppChain);
+    public HResult GetChain(ref CorDebugChainPtr ppChain)
+        => VTable.GetChainPtr(Self, ref ppChain);
 
-    public HResult GetCode(CorDebugCodePtr* ppCode)
-        => VTable.GetCodePtr(Self, ppCode);
+    public HResult GetCode(ref CorDebugCodePtr ppCode)
+        => VTable.GetCodePtr(Self, ref ppCode);
 
-    public HResult GetFunction(CorDebugFunctionPtr* ppFunction)
-        => VTable.GetFunctionPtr(Self, ppFunction);
+    public HResult GetFunction(ref CorDebugFunctionPtr ppFunction)
+        => VTable.GetFunctionPtr(Self, ref ppFunction);
 
     public HResult GetFunctionToken(ref int pToken)
         => VTable.GetFunctionTokenPtr(Self, ref pToken);
@@ -1022,26 +1022,26 @@ unsafe class CorDebugFrame: CallableCOMWrapper
     public HResult GetStackRange(ref ulong pStart, ref ulong pEnd)
         => VTable.GetStackRangePtr(Self, ref pStart, ref pEnd);
 
-    public HResult GetCaller(CorDebugFramePtr* ppFrame)
-        => VTable.GetCallerPtr(Self, ppFrame);
+    public HResult GetCaller(ref CorDebugFramePtr ppFrame)
+        => VTable.GetCallerPtr(Self, ref ppFrame);
 
-    public HResult GetCallee(CorDebugFramePtr* ppFrame)
-        => VTable.GetCalleePtr(Self, ppFrame);
+    public HResult GetCallee(ref CorDebugFramePtr ppFrame)
+        => VTable.GetCalleePtr(Self, ref ppFrame);
 
-    public HResult CreateStepper(CorDebugStepperPtr* ppStepper)
-        => VTable.CreateStepperPtr(Self, ppStepper);
+    public HResult CreateStepper(ref CorDebugStepperPtr ppStepper)
+        => VTable.CreateStepperPtr(Self, ref ppStepper);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugFrameVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugChainPtr*, HResult> GetChainPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugCodePtr*, HResult> GetCodePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFunctionPtr*, HResult> GetFunctionPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugChainPtr, HResult> GetChainPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugCodePtr, HResult> GetCodePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFunctionPtr, HResult> GetFunctionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetFunctionTokenPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, ref ulong, HResult> GetStackRangePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFramePtr*, HResult> GetCallerPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFramePtr*, HResult> GetCalleePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugStepperPtr*, HResult> CreateStepperPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFramePtr, HResult> GetCallerPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFramePtr, HResult> GetCalleePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugStepperPtr, HResult> CreateStepperPtr;
     }
 }
 
@@ -1062,16 +1062,16 @@ unsafe class CorDebugModule: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetProcess(CorDebugProcessPtr* ppProcess)
-        => VTable.GetProcessPtr(Self, ppProcess);
+    public HResult GetProcess(ref CorDebugProcessPtr ppProcess)
+        => VTable.GetProcessPtr(Self, ref ppProcess);
 
     public HResult GetBaseAddress(ref ulong pAddress)
         => VTable.GetBaseAddressPtr(Self, ref pAddress);
 
-    public HResult GetAssembly(CorDebugAssemblyPtr* ppAssembly)
-        => VTable.GetAssemblyPtr(Self, ppAssembly);
+    public HResult GetAssembly(ref CorDebugAssemblyPtr ppAssembly)
+        => VTable.GetAssemblyPtr(Self, ref ppAssembly);
 
-    public HResult GetName(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetName(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetNamePtr(Self, cchName, ref pcchName, szName);
 
     public HResult EnableJITDebugging(bool bTrackJITInfo, bool bAllowJitOpts)
@@ -1080,75 +1080,62 @@ unsafe class CorDebugModule: CallableCOMWrapper
     public HResult EnableClassLoadCallbacks(bool bClassLoadCallbacks)
         => VTable.EnableClassLoadCallbacksPtr(Self, bClassLoadCallbacks);
 
-    public HResult GetFunctionFromToken(int methodDef, CorDebugFunctionPtr* ppFunction)
-        => VTable.GetFunctionFromTokenPtr(Self, methodDef, ppFunction);
+    public HResult GetFunctionFromToken(int methodDef, ref CorDebugFunctionPtr ppFunction)
+        => VTable.GetFunctionFromTokenPtr(Self, methodDef, ref ppFunction);
 
-    public HResult GetFunctionFromRVA(ulong rva, CorDebugFunctionPtr* ppFunction)
-        => VTable.GetFunctionFromRVAPtr(Self, rva, ppFunction);
+    public HResult GetFunctionFromRVA(ulong rva, ref CorDebugFunctionPtr ppFunction)
+        => VTable.GetFunctionFromRVAPtr(Self, rva, ref ppFunction);
 
-    public HResult GetClassFromToken(int typeDef, CorDebugClassPtr* ppClass)
-        => VTable.GetClassFromTokenPtr(Self, typeDef, ppClass);
+    public HResult GetClassFromToken(int typeDef, ref CorDebugClassPtr ppClass)
+        => VTable.GetClassFromTokenPtr(Self, typeDef, ref ppClass);
 
-    public HResult CreateBreakpoint(CorDebugModuleBreakpointPtr* ppBreakpoint)
-        => VTable.CreateBreakpointPtr(Self, ppBreakpoint);
+    public HResult CreateBreakpoint(ref CorDebugModuleBreakpointPtr ppBreakpoint)
+        => VTable.CreateBreakpointPtr(Self, ref ppBreakpoint);
 
-    public HResult GetEditAndContinueSnapshot(CorDebugEditAndContinueSnapshotPtr* ppEditAndContinueSnapshot)
-        => VTable.GetEditAndContinueSnapshotPtr(Self, ppEditAndContinueSnapshot);
+    public HResult GetEditAndContinueSnapshot(ref CorDebugEditAndContinueSnapshotPtr ppEditAndContinueSnapshot)
+        => VTable.GetEditAndContinueSnapshotPtr(Self, ref ppEditAndContinueSnapshot);
 
-    public HResult GetMetaDataInterface(ref GUID riid, IntPtr* ppObj)
-        => VTable.GetMetaDataInterfacePtr(Self, ref riid, ppObj);
+    public HResult GetMetaDataInterface(ref Guid riid, ref IntPtr ppObj)
+        => VTable.GetMetaDataInterfacePtr(Self, ref riid, ref ppObj);
 
     public HResult GetToken(ref int pToken)
         => VTable.GetTokenPtr(Self, ref pToken);
 
-    public HResult IsDynamic(ref int pDynamic)
+    public HResult IsDynamic(ref bool pDynamic)
         => VTable.IsDynamicPtr(Self, ref pDynamic);
 
-    public HResult GetGlobalVariableValue(int fieldDef, CorDebugValuePtr* ppValue)
-        => VTable.GetGlobalVariableValuePtr(Self, fieldDef, ppValue);
+    public HResult GetGlobalVariableValue(int fieldDef, ref CorDebugValuePtr ppValue)
+        => VTable.GetGlobalVariableValuePtr(Self, fieldDef, ref ppValue);
 
     public HResult GetSize(ref uint pcBytes)
         => VTable.GetSizePtr(Self, ref pcBytes);
 
-    public HResult IsInMemory(ref int pInMemory)
+    public HResult IsInMemory(ref bool pInMemory)
         => VTable.IsInMemoryPtr(Self, ref pInMemory);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugModuleVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugProcessPtr*, HResult> GetProcessPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugProcessPtr, HResult> GetProcessPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, HResult> GetBaseAddressPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugAssemblyPtr*, HResult> GetAssemblyPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetNamePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugAssemblyPtr, HResult> GetAssemblyPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetNamePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, bool, HResult> EnableJITDebuggingPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> EnableClassLoadCallbacksPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugFunctionPtr*, HResult> GetFunctionFromTokenPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, CorDebugFunctionPtr*, HResult> GetFunctionFromRVAPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugClassPtr*, HResult> GetClassFromTokenPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugModuleBreakpointPtr*, HResult> CreateBreakpointPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEditAndContinueSnapshotPtr*, HResult> GetEditAndContinueSnapshotPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref GUID, IntPtr*, HResult> GetMetaDataInterfacePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, ref CorDebugFunctionPtr, HResult> GetFunctionFromTokenPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, ref CorDebugFunctionPtr, HResult> GetFunctionFromRVAPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, ref CorDebugClassPtr, HResult> GetClassFromTokenPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugModuleBreakpointPtr, HResult> CreateBreakpointPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEditAndContinueSnapshotPtr, HResult> GetEditAndContinueSnapshotPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref Guid, ref IntPtr, HResult> GetMetaDataInterfacePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetTokenPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsDynamicPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugValuePtr*, HResult> GetGlobalVariableValuePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsDynamicPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, ref CorDebugValuePtr, HResult> GetGlobalVariableValuePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetSizePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsInMemoryPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsInMemoryPtr;
     }
 }
 
-
-[StructLayout(LayoutKind.Explicit)]
-unsafe struct GUID
-{
-    [FieldOffset(0)]
-    public uint Data1;
-    [FieldOffset(32)]
-    public ushort Data2;
-    [FieldOffset(48)]
-    public ushort Data3;
-    [FieldOffset(64)]
-    public fixed char Data4[8];
-}
 
 unsafe record struct CorDebugFunctionPtr(IntPtr Pointer)
 {
@@ -1166,23 +1153,23 @@ unsafe class CorDebugFunction: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetModule(CorDebugModulePtr* ppModule)
-        => VTable.GetModulePtr(Self, ppModule);
+    public HResult GetModule(ref CorDebugModulePtr ppModule)
+        => VTable.GetModulePtr(Self, ref ppModule);
 
-    public HResult GetClass(CorDebugClassPtr* ppClass)
-        => VTable.GetClassPtr(Self, ppClass);
+    public HResult GetClass(ref CorDebugClassPtr ppClass)
+        => VTable.GetClassPtr(Self, ref ppClass);
 
     public HResult GetToken(ref int pMethodDef)
         => VTable.GetTokenPtr(Self, ref pMethodDef);
 
-    public HResult GetILCode(CorDebugCodePtr* ppCode)
-        => VTable.GetILCodePtr(Self, ppCode);
+    public HResult GetILCode(ref CorDebugCodePtr ppCode)
+        => VTable.GetILCodePtr(Self, ref ppCode);
 
-    public HResult GetNativeCode(CorDebugCodePtr* ppCode)
-        => VTable.GetNativeCodePtr(Self, ppCode);
+    public HResult GetNativeCode(ref CorDebugCodePtr ppCode)
+        => VTable.GetNativeCodePtr(Self, ref ppCode);
 
-    public HResult CreateBreakpoint(CorDebugFunctionBreakpointPtr* ppBreakpoint)
-        => VTable.CreateBreakpointPtr(Self, ppBreakpoint);
+    public HResult CreateBreakpoint(ref CorDebugFunctionBreakpointPtr ppBreakpoint)
+        => VTable.CreateBreakpointPtr(Self, ref ppBreakpoint);
 
     public HResult GetLocalVarSigToken(ref int pmdSig)
         => VTable.GetLocalVarSigTokenPtr(Self, ref pmdSig);
@@ -1193,12 +1180,12 @@ unsafe class CorDebugFunction: CallableCOMWrapper
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugFunctionVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugModulePtr*, HResult> GetModulePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugClassPtr*, HResult> GetClassPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugModulePtr, HResult> GetModulePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugClassPtr, HResult> GetClassPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetTokenPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugCodePtr*, HResult> GetILCodePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugCodePtr*, HResult> GetNativeCodePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFunctionBreakpointPtr*, HResult> CreateBreakpointPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugCodePtr, HResult> GetILCodePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugCodePtr, HResult> GetNativeCodePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFunctionBreakpointPtr, HResult> CreateBreakpointPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetLocalVarSigTokenPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCurrentVersionNumberPtr;
     }
@@ -1221,11 +1208,11 @@ unsafe class CorDebugCode: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult IsIL(ref int pbIL)
+    public HResult IsIL(ref bool pbIL)
         => VTable.IsILPtr(Self, ref pbIL);
 
-    public HResult GetFunction(CorDebugFunctionPtr* ppFunction)
-        => VTable.GetFunctionPtr(Self, ppFunction);
+    public HResult GetFunction(ref CorDebugFunctionPtr ppFunction)
+        => VTable.GetFunctionPtr(Self, ref ppFunction);
 
     public HResult GetAddress(ref ulong pStart)
         => VTable.GetAddressPtr(Self, ref pStart);
@@ -1233,10 +1220,10 @@ unsafe class CorDebugCode: CallableCOMWrapper
     public HResult GetSize(ref uint pcBytes)
         => VTable.GetSizePtr(Self, ref pcBytes);
 
-    public HResult CreateBreakpoint(uint offset, CorDebugFunctionBreakpointPtr* ppBreakpoint)
-        => VTable.CreateBreakpointPtr(Self, offset, ppBreakpoint);
+    public HResult CreateBreakpoint(uint offset, ref CorDebugFunctionBreakpointPtr ppBreakpoint)
+        => VTable.CreateBreakpointPtr(Self, offset, ref ppBreakpoint);
 
-    public HResult GetCode(uint startOffset, uint endOffset, uint cBufferAlloc, char[] buffer, ref uint pcBufferSize)
+    public HResult GetCode(uint startOffset, uint endOffset, uint cBufferAlloc, byte[] buffer, ref uint pcBufferSize)
         => VTable.GetCodePtr(Self, startOffset, endOffset, cBufferAlloc, buffer, ref pcBufferSize);
 
     public HResult GetVersionNumber(ref uint nVersion)
@@ -1251,12 +1238,12 @@ unsafe class CorDebugCode: CallableCOMWrapper
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugCodeVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsILPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFunctionPtr*, HResult> GetFunctionPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsILPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFunctionPtr, HResult> GetFunctionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, HResult> GetAddressPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetSizePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugFunctionBreakpointPtr*, HResult> CreateBreakpointPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, uint, char[], ref uint, HResult> GetCodePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref CorDebugFunctionBreakpointPtr, HResult> CreateBreakpointPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, uint, uint, byte[], ref uint, HResult> GetCodePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetVersionNumberPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, COR_DEBUG_IL_TO_NATIVE_MAP[], HResult> GetILToNativeMappingPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, uint[], HResult> GetEnCRemapSequencePointsPtr;
@@ -1291,21 +1278,21 @@ unsafe class CorDebugClass: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetModule(CorDebugModulePtr* pModule)
-        => VTable.GetModulePtr(Self, pModule);
+    public HResult GetModule(ref CorDebugModulePtr pModule)
+        => VTable.GetModulePtr(Self, ref pModule);
 
     public HResult GetToken(ref int pTypeDef)
         => VTable.GetTokenPtr(Self, ref pTypeDef);
 
-    public HResult GetStaticFieldValue(int fieldDef, CorDebugFramePtr pFrame, CorDebugValuePtr* ppValue)
-        => VTable.GetStaticFieldValuePtr(Self, fieldDef, pFrame, ppValue);
+    public HResult GetStaticFieldValue(int fieldDef, CorDebugFramePtr pFrame, ref CorDebugValuePtr ppValue)
+        => VTable.GetStaticFieldValuePtr(Self, fieldDef, pFrame, ref ppValue);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugClassVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugModulePtr*, HResult> GetModulePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugModulePtr, HResult> GetModulePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetTokenPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugFramePtr, CorDebugValuePtr*, HResult> GetStaticFieldValuePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugFramePtr, ref CorDebugValuePtr, HResult> GetStaticFieldValuePtr;
     }
 }
 
@@ -1335,26 +1322,26 @@ unsafe class CorDebugEval: CallableCOMWrapper
     public HResult NewObjectNoConstructor(CorDebugClassPtr pClass)
         => VTable.NewObjectNoConstructorPtr(Self, pClass);
 
-    public HResult NewString(ref int @string)
+    public HResult NewString(ref ushort @string)
         => VTable.NewStringPtr(Self, ref @string);
 
     public HResult NewArray(int elementType, CorDebugClassPtr pElementClass, uint rank, uint[] dims, uint[] lowBounds)
         => VTable.NewArrayPtr(Self, elementType, pElementClass, rank, dims, lowBounds);
 
-    public HResult IsActive(ref int pbActive)
+    public HResult IsActive(ref bool pbActive)
         => VTable.IsActivePtr(Self, ref pbActive);
 
     public HResult Abort()
         => VTable.AbortPtr(Self);
 
-    public HResult GetResult(CorDebugValuePtr* ppResult)
-        => VTable.GetResultPtr(Self, ppResult);
+    public HResult GetResult(ref CorDebugValuePtr ppResult)
+        => VTable.GetResultPtr(Self, ref ppResult);
 
-    public HResult GetThread(CorDebugThreadPtr* ppThread)
-        => VTable.GetThreadPtr(Self, ppThread);
+    public HResult GetThread(ref CorDebugThreadPtr ppThread)
+        => VTable.GetThreadPtr(Self, ref ppThread);
 
-    public HResult CreateValue(int elementType, CorDebugClassPtr pElementClass, CorDebugValuePtr* ppValue)
-        => VTable.CreateValuePtr(Self, elementType, pElementClass, ppValue);
+    public HResult CreateValue(int elementType, CorDebugClassPtr pElementClass, ref CorDebugValuePtr ppValue)
+        => VTable.CreateValuePtr(Self, elementType, pElementClass, ref ppValue);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugEvalVTable
@@ -1362,13 +1349,13 @@ unsafe class CorDebugEval: CallableCOMWrapper
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFunctionPtr, uint, CorDebugValuePtr[], HResult> CallFunctionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFunctionPtr, uint, CorDebugValuePtr[], HResult> NewObjectPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugClassPtr, HResult> NewObjectNoConstructorPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> NewStringPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ushort, HResult> NewStringPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugClassPtr, uint, uint[], uint[], HResult> NewArrayPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsActivePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsActivePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> AbortPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValuePtr*, HResult> GetResultPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugThreadPtr*, HResult> GetThreadPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugClassPtr, CorDebugValuePtr*, HResult> CreateValuePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValuePtr, HResult> GetResultPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugThreadPtr, HResult> GetThreadPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugClassPtr, ref CorDebugValuePtr, HResult> CreateValuePtr;
     }
 }
 
@@ -1398,8 +1385,8 @@ unsafe class CorDebugValue: CallableCOMWrapper
     public HResult GetAddress(ref ulong pAddress)
         => VTable.GetAddressPtr(Self, ref pAddress);
 
-    public HResult CreateBreakpoint(CorDebugValueBreakpointPtr* ppBreakpoint)
-        => VTable.CreateBreakpointPtr(Self, ppBreakpoint);
+    public HResult CreateBreakpoint(ref CorDebugValueBreakpointPtr ppBreakpoint)
+        => VTable.CreateBreakpointPtr(Self, ref ppBreakpoint);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugValueVTable
@@ -1407,7 +1394,7 @@ unsafe class CorDebugValue: CallableCOMWrapper
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetTypePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetSizePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, HResult> GetAddressPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValueBreakpointPtr*, HResult> CreateBreakpointPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValueBreakpointPtr, HResult> CreateBreakpointPtr;
     }
 }
 
@@ -1437,26 +1424,26 @@ unsafe class CorDebugContext: CallableCOMWrapper
     public HResult GetAddress(ref ulong pAddress)
         => VTable.GetAddressPtr(Self, ref pAddress);
 
-    public HResult CreateBreakpoint(CorDebugValueBreakpointPtr* ppBreakpoint)
-        => VTable.CreateBreakpointPtr(Self, ppBreakpoint);
+    public HResult CreateBreakpoint(ref CorDebugValueBreakpointPtr ppBreakpoint)
+        => VTable.CreateBreakpointPtr(Self, ref ppBreakpoint);
 
-    public HResult GetClass(CorDebugClassPtr* ppClass)
-        => VTable.GetClassPtr(Self, ppClass);
+    public HResult GetClass(ref CorDebugClassPtr ppClass)
+        => VTable.GetClassPtr(Self, ref ppClass);
 
-    public HResult GetFieldValue(CorDebugClassPtr pClass, int fieldDef, CorDebugValuePtr* ppValue)
-        => VTable.GetFieldValuePtr(Self, pClass, fieldDef, ppValue);
+    public HResult GetFieldValue(CorDebugClassPtr pClass, int fieldDef, ref CorDebugValuePtr ppValue)
+        => VTable.GetFieldValuePtr(Self, pClass, fieldDef, ref ppValue);
 
-    public HResult GetVirtualMethod(int memberRef, CorDebugFunctionPtr* ppFunction)
-        => VTable.GetVirtualMethodPtr(Self, memberRef, ppFunction);
+    public HResult GetVirtualMethod(int memberRef, ref CorDebugFunctionPtr ppFunction)
+        => VTable.GetVirtualMethodPtr(Self, memberRef, ref ppFunction);
 
-    public HResult GetContext(CorDebugContextPtr* ppContext)
-        => VTable.GetContextPtr(Self, ppContext);
+    public HResult GetContext(ref CorDebugContextPtr ppContext)
+        => VTable.GetContextPtr(Self, ref ppContext);
 
-    public HResult IsValueClass(ref int pbIsValueClass)
+    public HResult IsValueClass(ref bool pbIsValueClass)
         => VTable.IsValueClassPtr(Self, ref pbIsValueClass);
 
-    public HResult GetManagedCopy(IntPtr* ppObject)
-        => VTable.GetManagedCopyPtr(Self, ppObject);
+    public HResult GetManagedCopy(ref IntPtr ppObject)
+        => VTable.GetManagedCopyPtr(Self, ref ppObject);
 
     public HResult SetFromManagedCopy(IntPtr pObject)
         => VTable.SetFromManagedCopyPtr(Self, pObject);
@@ -1467,13 +1454,13 @@ unsafe class CorDebugContext: CallableCOMWrapper
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetTypePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetSizePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, HResult> GetAddressPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValueBreakpointPtr*, HResult> CreateBreakpointPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugClassPtr*, HResult> GetClassPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugClassPtr, int, CorDebugValuePtr*, HResult> GetFieldValuePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, CorDebugFunctionPtr*, HResult> GetVirtualMethodPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugContextPtr*, HResult> GetContextPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsValueClassPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr*, HResult> GetManagedCopyPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValueBreakpointPtr, HResult> CreateBreakpointPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugClassPtr, HResult> GetClassPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugClassPtr, int, ref CorDebugValuePtr, HResult> GetFieldValuePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, int, ref CorDebugFunctionPtr, HResult> GetVirtualMethodPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugContextPtr, HResult> GetContextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsValueClassPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref IntPtr, HResult> GetManagedCopyPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr, HResult> SetFromManagedCopyPtr;
     }
 }
@@ -1501,8 +1488,8 @@ unsafe class CorDebugObjectEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1515,7 +1502,7 @@ unsafe class CorDebugObjectEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ulong[], ref uint, HResult> NextPtr;
     }
@@ -1544,8 +1531,8 @@ unsafe class CorDebugBreakpointEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1558,7 +1545,7 @@ unsafe class CorDebugBreakpointEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugBreakpointPtr[], ref uint, HResult> NextPtr;
     }
@@ -1587,8 +1574,8 @@ unsafe class CorDebugStepperEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1601,7 +1588,7 @@ unsafe class CorDebugStepperEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugStepperPtr[], ref uint, HResult> NextPtr;
     }
@@ -1630,8 +1617,8 @@ unsafe class CorDebugProcessEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1644,7 +1631,7 @@ unsafe class CorDebugProcessEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugProcessPtr[], ref uint, HResult> NextPtr;
     }
@@ -1673,8 +1660,8 @@ unsafe class CorDebugThreadEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1687,7 +1674,7 @@ unsafe class CorDebugThreadEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugThreadPtr[], ref uint, HResult> NextPtr;
     }
@@ -1716,8 +1703,8 @@ unsafe class CorDebugFrameEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1730,7 +1717,7 @@ unsafe class CorDebugFrameEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugFramePtr[], ref uint, HResult> NextPtr;
     }
@@ -1759,8 +1746,8 @@ unsafe class CorDebugChainEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1773,7 +1760,7 @@ unsafe class CorDebugChainEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugChainPtr[], ref uint, HResult> NextPtr;
     }
@@ -1802,8 +1789,8 @@ unsafe class CorDebugModuleEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1816,7 +1803,7 @@ unsafe class CorDebugModuleEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugModulePtr[], ref uint, HResult> NextPtr;
     }
@@ -1845,8 +1832,8 @@ unsafe class CorDebugErrorInfoEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1859,7 +1846,7 @@ unsafe class CorDebugErrorInfoEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugEditAndContinueErrorInfoPtr[], ref uint, HResult> NextPtr;
     }
@@ -1888,8 +1875,8 @@ unsafe class CorDebugAppDomainEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1902,7 +1889,7 @@ unsafe class CorDebugAppDomainEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugAppDomainPtr[], ref uint, HResult> NextPtr;
     }
@@ -1931,8 +1918,8 @@ unsafe class CorDebugAssemblyEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -1945,7 +1932,7 @@ unsafe class CorDebugAssemblyEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, CorDebugAssemblyPtr[], ref uint, HResult> NextPtr;
     }
@@ -1968,13 +1955,13 @@ unsafe class CorDebugMDA: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetName(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetName(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetNamePtr(Self, cchName, ref pcchName, szName);
 
-    public HResult GetDescription(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetDescription(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetDescriptionPtr(Self, cchName, ref pcchName, szName);
 
-    public HResult GetXML(uint cchName, ref uint pcchName, int[] szName)
+    public HResult GetXML(uint cchName, ref uint pcchName, ushort[] szName)
         => VTable.GetXMLPtr(Self, cchName, ref pcchName, szName);
 
     public HResult GetFlags(ref CorDebugMDAFlags pFlags)
@@ -1986,9 +1973,9 @@ unsafe class CorDebugMDA: CallableCOMWrapper
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugMDAVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetNamePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetDescriptionPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetXMLPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetNamePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetDescriptionPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetXMLPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugMDAFlags, HResult> GetFlagsPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetOSThreadIdPtr;
     }
@@ -2016,25 +2003,25 @@ unsafe class CorDebugEditAndContinueErrorInfo: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult GetModule(CorDebugModulePtr* ppModule)
-        => VTable.GetModulePtr(Self, ppModule);
+    public HResult GetModule(ref CorDebugModulePtr ppModule)
+        => VTable.GetModulePtr(Self, ref ppModule);
 
     public HResult GetToken(ref int pToken)
         => VTable.GetTokenPtr(Self, ref pToken);
 
-    public HResult GetErrorCode(ref int pHr)
+    public HResult GetErrorCode(ref HResult pHr)
         => VTable.GetErrorCodePtr(Self, ref pHr);
 
-    public HResult GetString(uint cchString, ref uint pcchString, int[] szString)
+    public HResult GetString(uint cchString, ref uint pcchString, ushort[] szString)
         => VTable.GetStringPtr(Self, cchString, ref pcchString, szString);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugEditAndContinueErrorInfoVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugModulePtr*, HResult> GetModulePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugModulePtr, HResult> GetModulePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetTokenPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> GetErrorCodePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, int[], HResult> GetStringPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref HResult, HResult> GetErrorCodePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, ref uint, ushort[], HResult> GetStringPtr;
     }
 }
 
@@ -2055,10 +2042,10 @@ unsafe class CorDebugEditAndContinueSnapshot: CallableCOMWrapper
         SuppressRelease();
     }
 
-    public HResult CopyMetaData(IntPtr pIStream, ref GUID pMvid)
+    public HResult CopyMetaData(IntPtr pIStream, ref Guid pMvid)
         => VTable.CopyMetaDataPtr(Self, pIStream, ref pMvid);
 
-    public HResult GetMvid(ref GUID pMvid)
+    public HResult GetMvid(ref Guid pMvid)
         => VTable.GetMvidPtr(Self, ref pMvid);
 
     public HResult GetRoDataRVA(ref uint pRoDataRVA)
@@ -2079,8 +2066,8 @@ unsafe class CorDebugEditAndContinueSnapshot: CallableCOMWrapper
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugEditAndContinueSnapshotVTable
     {
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr, ref GUID, HResult> CopyMetaDataPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref GUID, HResult> GetMvidPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr, ref Guid, HResult> CopyMetaDataPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref Guid, HResult> GetMvidPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetRoDataRVAPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetRwDataRVAPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, IntPtr, HResult> SetPEBytesPtr;
@@ -2299,8 +2286,8 @@ unsafe class CorDebugEnum: CallableCOMWrapper
     public HResult Reset()
         => VTable.ResetPtr(Self);
 
-    public HResult Clone(CorDebugEnumPtr* ppEnum)
-        => VTable.ClonePtr(Self, ppEnum);
+    public HResult Clone(ref CorDebugEnumPtr ppEnum)
+        => VTable.ClonePtr(Self, ref ppEnum);
 
     public HResult GetCount(ref uint pcelt)
         => VTable.GetCountPtr(Self, ref pcelt);
@@ -2310,7 +2297,7 @@ unsafe class CorDebugEnum: CallableCOMWrapper
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, HResult> SkipPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, HResult> ResetPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugEnumPtr*, HResult> ClonePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugEnumPtr, HResult> ClonePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetCountPtr;
     }
 }
@@ -2335,11 +2322,11 @@ unsafe class CorDebugFunctionBreakpoint: CallableCOMWrapper
     public HResult Activate(bool bActive)
         => VTable.ActivatePtr(Self, bActive);
 
-    public HResult IsActive(ref int pbActive)
+    public HResult IsActive(ref bool pbActive)
         => VTable.IsActivePtr(Self, ref pbActive);
 
-    public HResult GetFunction(CorDebugFunctionPtr* ppFunction)
-        => VTable.GetFunctionPtr(Self, ppFunction);
+    public HResult GetFunction(ref CorDebugFunctionPtr ppFunction)
+        => VTable.GetFunctionPtr(Self, ref ppFunction);
 
     public HResult GetOffset(ref uint pnOffset)
         => VTable.GetOffsetPtr(Self, ref pnOffset);
@@ -2348,8 +2335,8 @@ unsafe class CorDebugFunctionBreakpoint: CallableCOMWrapper
     private readonly struct ICorDebugFunctionBreakpointVTable
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ActivatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsActivePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugFunctionPtr*, HResult> GetFunctionPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsActivePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugFunctionPtr, HResult> GetFunctionPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref uint, HResult> GetOffsetPtr;
     }
 }
@@ -2374,18 +2361,18 @@ unsafe class CorDebugModuleBreakpoint: CallableCOMWrapper
     public HResult Activate(bool bActive)
         => VTable.ActivatePtr(Self, bActive);
 
-    public HResult IsActive(ref int pbActive)
+    public HResult IsActive(ref bool pbActive)
         => VTable.IsActivePtr(Self, ref pbActive);
 
-    public HResult GetModule(CorDebugModulePtr* ppModule)
-        => VTable.GetModulePtr(Self, ppModule);
+    public HResult GetModule(ref CorDebugModulePtr ppModule)
+        => VTable.GetModulePtr(Self, ref ppModule);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugModuleBreakpointVTable
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ActivatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsActivePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugModulePtr*, HResult> GetModulePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsActivePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugModulePtr, HResult> GetModulePtr;
     }
 }
 
@@ -2409,18 +2396,18 @@ unsafe class CorDebugValueBreakpoint: CallableCOMWrapper
     public HResult Activate(bool bActive)
         => VTable.ActivatePtr(Self, bActive);
 
-    public HResult IsActive(ref int pbActive)
+    public HResult IsActive(ref bool pbActive)
         => VTable.IsActivePtr(Self, ref pbActive);
 
-    public HResult GetValue(CorDebugValuePtr* ppValue)
-        => VTable.GetValuePtr(Self, ppValue);
+    public HResult GetValue(ref CorDebugValuePtr ppValue)
+        => VTable.GetValuePtr(Self, ref ppValue);
 
     [StructLayout(LayoutKind.Sequential)]
     private readonly struct ICorDebugValueBreakpointVTable
     {
         public readonly delegate* unmanaged[Stdcall]<IntPtr, bool, HResult> ActivatePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref int, HResult> IsActivePtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, CorDebugValuePtr*, HResult> GetValuePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref bool, HResult> IsActivePtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, ref CorDebugValuePtr, HResult> GetValuePtr;
     }
 }
 
@@ -2450,10 +2437,10 @@ unsafe class CorDebugRegisterSet: CallableCOMWrapper
     public HResult SetRegisters(ulong mask, uint regCount, ulong[] regBuffer)
         => VTable.SetRegistersPtr(Self, mask, regCount, regBuffer);
 
-    public HResult GetThreadContext(uint contextSize, char[] context)
+    public HResult GetThreadContext(uint contextSize, byte[] context)
         => VTable.GetThreadContextPtr(Self, contextSize, context);
 
-    public HResult SetThreadContext(uint contextSize, char[] context)
+    public HResult SetThreadContext(uint contextSize, byte[] context)
         => VTable.SetThreadContextPtr(Self, contextSize, context);
 
     [StructLayout(LayoutKind.Sequential)]
@@ -2462,8 +2449,8 @@ unsafe class CorDebugRegisterSet: CallableCOMWrapper
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ref ulong, HResult> GetRegistersAvailablePtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, uint, ulong[], HResult> GetRegistersPtr;
         public readonly delegate* unmanaged[Stdcall]<IntPtr, ulong, uint, ulong[], HResult> SetRegistersPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, char[], HResult> GetThreadContextPtr;
-        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, char[], HResult> SetThreadContextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, byte[], HResult> GetThreadContextPtr;
+        public readonly delegate* unmanaged[Stdcall]<IntPtr, uint, byte[], HResult> SetThreadContextPtr;
     }
 }
 

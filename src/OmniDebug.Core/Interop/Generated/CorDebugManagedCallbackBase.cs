@@ -90,12 +90,12 @@ unsafe abstract class CorDebugManagedCallbackBase: COMCallableIUnknown
         return HResult.E_NOTIMPL;
     }
 
-    protected virtual HResult LogMessage(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref int pLogSwitchName, ref int pMessage)
+    protected virtual HResult LogMessage(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref ushort pLogSwitchName, ref ushort pMessage)
     {
         return HResult.E_NOTIMPL;
     }
 
-    protected virtual HResult LogSwitch(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref int pLogSwitchName, ref int pParentName)
+    protected virtual HResult LogSwitch(CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref ushort pLogSwitchName, ref ushort pParentName)
     {
         return HResult.E_NOTIMPL;
     }
@@ -150,7 +150,7 @@ unsafe abstract class CorDebugManagedCallbackBase: COMCallableIUnknown
         return HResult.E_NOTIMPL;
     }
 
-    protected virtual HResult CreateConnection(CorDebugProcessPtr pProcess, uint dwConnectionId, ref int pConnName)
+    protected virtual HResult CreateConnection(CorDebugProcessPtr pProcess, uint dwConnectionId, ref ushort pConnName)
     {
         return HResult.E_NOTIMPL;
     }
@@ -188,46 +188,46 @@ unsafe abstract class CorDebugManagedCallbackBase: COMCallableIUnknown
     static CorDebugManagedCallbackPtr DefineICorDebugManagedCallback(CorDebugManagedCallbackBase self, Guid iid)
     {
         var builder = self.AddInterface(iid, validate: false);
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.BreakpointDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugBreakpointPtr pBreakpoint) => self.Breakpoint(pAppDomain, pThread, pBreakpoint)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.StepCompleteDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugStepperPtr pStepper, CorDebugStepReason reason) => self.StepComplete(pAppDomain, pThread, pStepper, reason)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.BreakDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr thread) => self.Break(pAppDomain, thread)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExceptionDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, bool unhandled) => self.Exception(pAppDomain, pThread, unhandled)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.EvalCompleteDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugEvalPtr pEval) => self.EvalComplete(pAppDomain, pThread, pEval)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.EvalExceptionDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugEvalPtr pEval) => self.EvalException(pAppDomain, pThread, pEval)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.CreateProcessWDelegate((IntPtr Self, CorDebugProcessPtr pProcess) => self.CreateProcessW(pProcess)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExitProcessDelegate((IntPtr Self, CorDebugProcessPtr pProcess) => self.ExitProcess(pProcess)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.CreateThreadDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr thread) => self.CreateThread(pAppDomain, thread)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExitThreadDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr thread) => self.ExitThread(pAppDomain, thread)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LoadModuleDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule) => self.LoadModule(pAppDomain, pModule)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UnloadModuleDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule) => self.UnloadModule(pAppDomain, pModule)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LoadClassDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugClassPtr c) => self.LoadClass(pAppDomain, c)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UnloadClassDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugClassPtr c) => self.UnloadClass(pAppDomain, c)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.DebuggerErrorDelegate((IntPtr Self, CorDebugProcessPtr pProcess, HResult errorHR, uint errorCode) => self.DebuggerError(pProcess, errorHR, errorCode)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LogMessageDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref int pLogSwitchName, ref int pMessage) => self.LogMessage(pAppDomain, pThread, lLevel, ref pLogSwitchName, ref pMessage)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LogSwitchDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref int pLogSwitchName, ref int pParentName) => self.LogSwitch(pAppDomain, pThread, lLevel, ulReason, ref pLogSwitchName, ref pParentName)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.CreateAppDomainDelegate((IntPtr Self, CorDebugProcessPtr pProcess, CorDebugAppDomainPtr pAppDomain) => self.CreateAppDomain(pProcess, pAppDomain)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExitAppDomainDelegate((IntPtr Self, CorDebugProcessPtr pProcess, CorDebugAppDomainPtr pAppDomain) => self.ExitAppDomain(pProcess, pAppDomain)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LoadAssemblyDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugAssemblyPtr pAssembly) => self.LoadAssembly(pAppDomain, pAssembly)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UnloadAssemblyDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugAssemblyPtr pAssembly) => self.UnloadAssembly(pAppDomain, pAssembly)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ControlCTrapDelegate((IntPtr Self, CorDebugProcessPtr pProcess) => self.ControlCTrap(pProcess)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.NameChangeDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread) => self.NameChange(pAppDomain, pThread)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UpdateModuleSymbolsDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule, IntPtr pSymbolStream) => self.UpdateModuleSymbols(pAppDomain, pModule, pSymbolStream)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.EditAndContinueRemapDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pFunction, bool fAccurate) => self.EditAndContinueRemap(pAppDomain, pThread, pFunction, fAccurate)));
-        builder.AddMethod(new ICorDebugManagedCallbackDelegates.BreakpointSetErrorDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugBreakpointPtr pBreakpoint, uint dwError) => self.BreakpointSetError(pAppDomain, pThread, pBreakpoint, dwError)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.BreakpointDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugBreakpointPtr pBreakpoint) => self.Breakpoint(pAppDomain, pThread, pBreakpoint)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.StepCompleteDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugStepperPtr pStepper, CorDebugStepReason reason) => self.StepComplete(pAppDomain, pThread, pStepper, reason)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.BreakDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr thread) => self.Break(pAppDomain, thread)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExceptionDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, bool unhandled) => self.Exception(pAppDomain, pThread, unhandled)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.EvalCompleteDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugEvalPtr pEval) => self.EvalComplete(pAppDomain, pThread, pEval)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.EvalExceptionDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugEvalPtr pEval) => self.EvalException(pAppDomain, pThread, pEval)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.CreateProcessWDelegate((IntPtr This, CorDebugProcessPtr pProcess) => self.CreateProcessW(pProcess)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExitProcessDelegate((IntPtr This, CorDebugProcessPtr pProcess) => self.ExitProcess(pProcess)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.CreateThreadDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr thread) => self.CreateThread(pAppDomain, thread)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExitThreadDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr thread) => self.ExitThread(pAppDomain, thread)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LoadModuleDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule) => self.LoadModule(pAppDomain, pModule)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UnloadModuleDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule) => self.UnloadModule(pAppDomain, pModule)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LoadClassDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugClassPtr c) => self.LoadClass(pAppDomain, c)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UnloadClassDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugClassPtr c) => self.UnloadClass(pAppDomain, c)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.DebuggerErrorDelegate((IntPtr This, CorDebugProcessPtr pProcess, HResult errorHR, uint errorCode) => self.DebuggerError(pProcess, errorHR, errorCode)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LogMessageDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref ushort pLogSwitchName, ref ushort pMessage) => self.LogMessage(pAppDomain, pThread, lLevel, ref pLogSwitchName, ref pMessage)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LogSwitchDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref ushort pLogSwitchName, ref ushort pParentName) => self.LogSwitch(pAppDomain, pThread, lLevel, ulReason, ref pLogSwitchName, ref pParentName)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.CreateAppDomainDelegate((IntPtr This, CorDebugProcessPtr pProcess, CorDebugAppDomainPtr pAppDomain) => self.CreateAppDomain(pProcess, pAppDomain)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ExitAppDomainDelegate((IntPtr This, CorDebugProcessPtr pProcess, CorDebugAppDomainPtr pAppDomain) => self.ExitAppDomain(pProcess, pAppDomain)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.LoadAssemblyDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugAssemblyPtr pAssembly) => self.LoadAssembly(pAppDomain, pAssembly)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UnloadAssemblyDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugAssemblyPtr pAssembly) => self.UnloadAssembly(pAppDomain, pAssembly)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.ControlCTrapDelegate((IntPtr This, CorDebugProcessPtr pProcess) => self.ControlCTrap(pProcess)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.NameChangeDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread) => self.NameChange(pAppDomain, pThread)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.UpdateModuleSymbolsDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugModulePtr pModule, IntPtr pSymbolStream) => self.UpdateModuleSymbols(pAppDomain, pModule, pSymbolStream)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.EditAndContinueRemapDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pFunction, bool fAccurate) => self.EditAndContinueRemap(pAppDomain, pThread, pFunction, fAccurate)));
+        builder.AddMethod(new ICorDebugManagedCallbackDelegates.BreakpointSetErrorDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugBreakpointPtr pBreakpoint, uint dwError) => self.BreakpointSetError(pAppDomain, pThread, pBreakpoint, dwError)));
         return new CorDebugManagedCallbackPtr(builder.Complete());
     }
 
     static CorDebugManagedCallback2Ptr DefineICorDebugManagedCallback2(CorDebugManagedCallbackBase self, Guid iid)
     {
         var builder = self.AddInterface(iid, validate: false);
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.FunctionRemapOpportunityDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pOldFunction, CorDebugFunctionPtr pNewFunction, uint oldILOffset) => self.FunctionRemapOpportunity(pAppDomain, pThread, pOldFunction, pNewFunction, oldILOffset)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.CreateConnectionDelegate((IntPtr Self, CorDebugProcessPtr pProcess, uint dwConnectionId, ref int pConnName) => self.CreateConnection(pProcess, dwConnectionId, ref pConnName)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.ChangeConnectionDelegate((IntPtr Self, CorDebugProcessPtr pProcess, uint dwConnectionId) => self.ChangeConnection(pProcess, dwConnectionId)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.DestroyConnectionDelegate((IntPtr Self, CorDebugProcessPtr pProcess, uint dwConnectionId) => self.DestroyConnection(pProcess, dwConnectionId)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.ExceptionDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFramePtr pFrame, uint nOffset, CorDebugExceptionCallbackType dwEventType, uint dwFlags) => self.Exception(pAppDomain, pThread, pFrame, nOffset, dwEventType, dwFlags)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.ExceptionUnwindDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugExceptionUnwindCallbackType dwEventType, uint dwFlags) => self.ExceptionUnwind(pAppDomain, pThread, dwEventType, dwFlags)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.FunctionRemapCompleteDelegate((IntPtr Self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pFunction) => self.FunctionRemapComplete(pAppDomain, pThread, pFunction)));
-        builder.AddMethod(new ICorDebugManagedCallback2Delegates.MDANotificationDelegate((IntPtr Self, CorDebugControllerPtr pController, CorDebugThreadPtr pThread, CorDebugMDAPtr pMDA) => self.MDANotification(pController, pThread, pMDA)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.FunctionRemapOpportunityDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pOldFunction, CorDebugFunctionPtr pNewFunction, uint oldILOffset) => self.FunctionRemapOpportunity(pAppDomain, pThread, pOldFunction, pNewFunction, oldILOffset)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.CreateConnectionDelegate((IntPtr This, CorDebugProcessPtr pProcess, uint dwConnectionId, ref ushort pConnName) => self.CreateConnection(pProcess, dwConnectionId, ref pConnName)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.ChangeConnectionDelegate((IntPtr This, CorDebugProcessPtr pProcess, uint dwConnectionId) => self.ChangeConnection(pProcess, dwConnectionId)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.DestroyConnectionDelegate((IntPtr This, CorDebugProcessPtr pProcess, uint dwConnectionId) => self.DestroyConnection(pProcess, dwConnectionId)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.ExceptionDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFramePtr pFrame, uint nOffset, CorDebugExceptionCallbackType dwEventType, uint dwFlags) => self.Exception(pAppDomain, pThread, pFrame, nOffset, dwEventType, dwFlags)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.ExceptionUnwindDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugExceptionUnwindCallbackType dwEventType, uint dwFlags) => self.ExceptionUnwind(pAppDomain, pThread, dwEventType, dwFlags)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.FunctionRemapCompleteDelegate((IntPtr This, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pFunction) => self.FunctionRemapComplete(pAppDomain, pThread, pFunction)));
+        builder.AddMethod(new ICorDebugManagedCallback2Delegates.MDANotificationDelegate((IntPtr This, CorDebugControllerPtr pController, CorDebugThreadPtr pThread, CorDebugMDAPtr pMDA) => self.MDANotification(pController, pThread, pMDA)));
         return new CorDebugManagedCallback2Ptr(builder.Complete());
     }
 
@@ -279,10 +279,10 @@ unsafe abstract class CorDebugManagedCallbackBase: COMCallableIUnknown
         public delegate HResult DebuggerErrorDelegate(IntPtr self, CorDebugProcessPtr pProcess, HResult errorHR, uint errorCode);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-        public delegate HResult LogMessageDelegate(IntPtr self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref int pLogSwitchName, ref int pMessage);
+        public delegate HResult LogMessageDelegate(IntPtr self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, ref ushort pLogSwitchName, ref ushort pMessage);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-        public delegate HResult LogSwitchDelegate(IntPtr self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref int pLogSwitchName, ref int pParentName);
+        public delegate HResult LogSwitchDelegate(IntPtr self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, int lLevel, uint ulReason, ref ushort pLogSwitchName, ref ushort pParentName);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
         public delegate HResult CreateAppDomainDelegate(IntPtr self, CorDebugProcessPtr pProcess, CorDebugAppDomainPtr pAppDomain);
@@ -319,7 +319,7 @@ unsafe abstract class CorDebugManagedCallbackBase: COMCallableIUnknown
         public delegate HResult FunctionRemapOpportunityDelegate(IntPtr self, CorDebugAppDomainPtr pAppDomain, CorDebugThreadPtr pThread, CorDebugFunctionPtr pOldFunction, CorDebugFunctionPtr pNewFunction, uint oldILOffset);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
-        public delegate HResult CreateConnectionDelegate(IntPtr self, CorDebugProcessPtr pProcess, uint dwConnectionId, ref int pConnName);
+        public delegate HResult CreateConnectionDelegate(IntPtr self, CorDebugProcessPtr pProcess, uint dwConnectionId, ref ushort pConnName);
 
         [UnmanagedFunctionPointer(CallingConvention.Winapi)]
         public delegate HResult ChangeConnectionDelegate(IntPtr self, CorDebugProcessPtr pProcess, uint dwConnectionId);

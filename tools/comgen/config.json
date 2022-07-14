@@ -1,7 +1,9 @@
 {
     "mapped_types": {
+        "GUID": "Guid",
         "_GUID": "Guid",
         "HRESULT": "HResult",
+        "LPWSTR": "char*",
         "BOOL": "bool"
     },
     "include_paths": [
